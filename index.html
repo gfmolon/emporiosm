@@ -269,6 +269,52 @@
       text-decoration:none;
       font-weight:650;
     }
+
+    .utility-links{
+      display:grid;
+      gap:10px;
+      margin-top:18px;
+    }
+
+    .utility-link,
+    .hours-toggle{
+      width:100%;
+      border:1px solid var(--line);
+      background:var(--card);
+      color:var(--text);
+      border-radius:14px;
+      padding:14px 16px;
+      text-decoration:none;
+      font-weight:650;
+      text-align:left;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .utility-link small,
+    .hours-toggle small{
+      display:block;
+      margin-top:3px;
+      color:var(--muted);
+      font-weight:500;
+      line-height:1.35;
+    }
+
+    .hours-box{
+      display:none;
+      margin-top:10px;
+      padding:14px 16px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:var(--card);
+      color:var(--muted);
+      line-height:1.7;
+    }
+
+    .hours-box.open{display:block}
+    .hours-box strong{color:var(--text)}
     .visit-multi .choice{
       position:relative;
       cursor:pointer;
@@ -581,10 +627,35 @@
         <button class="action-card"><strong>Como chegar</strong><span>Ver localização</span></button>
       </div>
 
+      <div class="utility-links">
+        <a class="utility-link" href="catalogo-vinhos.pdf" download>
+          <span>
+            🍷 Catálogo de vinhos
+            <small>Baixar catálogo em PDF</small>
+          </span>
+          <span>↓</span>
+        </a>
+
+        <button class="hours-toggle" id="hoursToggle" type="button" aria-expanded="false" aria-controls="hoursBox">
+          <span>
+            🕐 Horários
+            <small>Ver horários de atendimento</small>
+          </span>
+          <span id="hoursArrow">+</span>
+        </button>
+
+        <div class="hours-box" id="hoursBox">
+          <strong>Segunda a sexta</strong><br>
+          8h às 19h<br><br>
+          <strong>Sábado e domingo</strong><br>
+          9h às 15h
+        </div>
+      </div>
+
       <div class="footer">
         <strong>Empório São Marcos</strong><br>
         Produtos regionais, vinhos, cestas e presentes.<br>
-        <a href="#">Horários</a> · <a href="#">Instagram</a> · <a href="#">WhatsApp</a>
+        <span>São Marcos · RS</span>
       </div>
     </section>
   </main>
@@ -709,6 +780,18 @@
           <span>${money(total)}</span>
         </div>
       `;
+    }
+
+    const hoursToggle = document.getElementById('hoursToggle');
+    const hoursBox = document.getElementById('hoursBox');
+    const hoursArrow = document.getElementById('hoursArrow');
+
+    if(hoursToggle && hoursBox && hoursArrow){
+      hoursToggle.addEventListener('click',()=>{
+        const open = hoursBox.classList.toggle('open');
+        hoursToggle.setAttribute('aria-expanded', String(open));
+        hoursArrow.textContent = open ? '−' : '+';
+      });
     }
   </script>
 </body>
