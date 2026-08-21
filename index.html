@@ -294,12 +294,17 @@
     }
 
     .hours-toggle{
+      width:100%;
       border:0;
       background:transparent;
       color:var(--text);
       padding:0;
       font-weight:700;
       text-align:left;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
     }
 
     .hours-box{
@@ -635,15 +640,16 @@
           <span>Acompanhar novidades</span>
         </button>
 
-        <button class="action-card">
+        <button class="action-card" id="mapsBtn">
           <strong>Como chegar</strong>
-          <span>Ver localização</span>
+          <span>BR-116, km 113, nº 1223, Bairro Industrial, São Marcos - RS</span>
         </button>
       </div>
 
       <div class="contact-meta">
         <button class="hours-toggle" id="hoursToggle" type="button" aria-expanded="false" aria-controls="hoursBox">
-          🕐 Ver horários
+          <span>🕐 Ver horários</span>
+          <span id="hoursArrow">+</span>
         </button>
 
         <div class="hours-box" id="hoursBox">
@@ -655,7 +661,7 @@
       <div class="footer">
         <strong>Empório São Marcos</strong><br>
         Produtos regionais, vinhos, cestas e presentes.<br>
-        São Marcos · RS
+        BR-116, km 113, nº 1223, Bairro Industrial, São Marcos - RS
       </div>
     </section>
   </main>
@@ -856,6 +862,15 @@ Contato: ${contact}
 Observações: ${notes}`;
 
         openWhatsApp(text);
+      });
+    }
+
+    const mapsBtn = document.getElementById('mapsBtn');
+    if(mapsBtn){
+      mapsBtn.addEventListener('click',()=>{
+        const address = 'BR-116, km 113, nº 1223, Bairro Industrial, São Marcos - RS';
+        const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+        window.open(url, '_blank', 'noopener');
       });
     }
 
