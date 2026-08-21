@@ -635,9 +635,9 @@
           <span>Falar com o Empório</span>
         </button>
 
-        <button class="action-card">
+        <button class="action-card" id="instagramBtn">
           <strong>Instagram</strong>
-          <span>Acompanhar novidades</span>
+          <span>@empsaomarcos</span>
         </button>
 
         <button class="action-card" id="mapsBtn">
@@ -661,7 +661,8 @@
       <div class="footer">
         <strong>Empório São Marcos</strong><br>
         Produtos regionais, vinhos, cestas e presentes.<br>
-        BR-116, km 113, nº 1223, Bairro Industrial, São Marcos - RS
+        BR-116, km 113, nº 1223, Bairro Industrial, São Marcos - RS<br>
+        <a href="https://www.instagram.com/empsaomarcos/" target="_blank" rel="noopener">@empsaomarcos</a>
       </div>
     </section>
   </main>
@@ -862,6 +863,13 @@ Contato: ${contact}
 Observações: ${notes}`;
 
         openWhatsApp(text);
+      });
+    }
+
+    const instagramBtn = document.getElementById('instagramBtn');
+    if(instagramBtn){
+      instagramBtn.addEventListener('click',()=>{
+        window.open('https://www.instagram.com/empsaomarcos/', '_blank', 'noopener');
       });
     }
 
