@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Empório São Marcos</title>
+  <style>
+    :root{
+      --bg:#f7f4ee;
+      --card:#ffffff;
+      --text:#26231f;
+      --muted:#766f66;
+      --line:#e7e0d6;
+      --accent:#6b4f3a;
+      --accent-2:#efe6da;
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    button,input,textarea,select{font:inherit}
+    button{cursor:pointer}
+    .app{
+      width:min(100%,560px);
+      margin:0 auto;
+      min-height:100vh;
+      padding:18px 16px 110px;
+    }
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:24px;
+    }
+    .brand{
+      font-weight:750;
+      letter-spacing:-.02em;
+    }
+    .brand small{
+      display:block;
+      color:var(--muted);
+      font-weight:500;
+      margin-top:2px;
+    }
+    .ghost{
+      border:0;
+      background:transparent;
+      color:var(--muted);
+      padding:10px 0;
+    }
+    .hero{padding:18px 0 8px}
+    .eyebrow{
+      color:var(--muted);
+      font-size:.9rem;
+      margin-bottom:8px;
+    }
+    h1,h2{
+      margin:0;
+      line-height:1.05;
+      letter-spacing:-.04em;
+    }
+    h1{font-size:2.25rem}
+    h2{font-size:1.65rem}
+    .lead{
+      color:var(--muted);
+      line-height:1.55;
+      margin:12px 0 0;
+    }
+    .actions{
+      display:grid;
+      gap:12px;
+      margin-top:24px;
+    }
+    .action-card{
+      border:1px solid var(--line);
+      background:var(--card);
+      border-radius:var(--radius);
+      padding:18px;
+      text-align:left;
+      width:100%;
+    }
+    .action-card strong{
+      display:block;
+      font-size:1.05rem;
+      margin-bottom:4px;
+    }
+    .action-card span{
+      color:var(--muted);
+      font-size:.94rem;
+      line-height:1.4;
+    }
+    .action-card.primary{
+      background:var(--accent);
+      color:#fff;
+      border-color:var(--accent);
+    }
+    .action-card.primary span{color:#efe9e3}
+    .section{
+      display:none;
+      animation:fade .18s ease;
+    }
+    .section.active{display:block}
+    @keyframes fade{from{opacity:.4;transform:translateY(5px)}to{opacity:1;transform:none}}
+    .progress{
+      display:flex;
+      gap:6px;
+      margin:20px 0 28px;
+    }
+    .progress i{
+      display:block;
+      height:5px;
+      flex:1;
+      border-radius:999px;
+      background:#ddd5cb;
+    }
+    .progress i.on{background:var(--accent)}
+    .choice-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin-top:20px;
+    }
+    .choice{
+      min-height:104px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:var(--card);
+      padding:16px;
+      text-align:left;
+    }
+    .choice .icon{
+      font-size:1.7rem;
+      display:block;
+      margin-bottom:12px;
+    }
+    .choice.selected{
+      border-color:var(--accent);
+      box-shadow:0 0 0 2px rgba(107,79,58,.08);
+      background:#fffdf9;
+    }
+    .field{margin-top:18px}
+    label{
+      display:block;
+      font-weight:650;
+      margin-bottom:8px;
+    }
+    input,textarea,select{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:var(--card);
+      padding:14px;
+      color:var(--text);
+      outline:none;
+      font-size:16px;
+    }
+    input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+    .products{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin-top:18px;
+    }
+    .product{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:16px;
+      overflow:hidden;
+    }
+    .product-img{
+      aspect-ratio:1/1;
+      display:grid;
+      place-items:center;
+      font-size:2.4rem;
+      background:var(--accent-2);
+    }
+    .product-body{padding:12px}
+    .product-name{font-weight:700}
+    .price{
+      color:var(--muted);
+      font-size:.93rem;
+      margin-top:4px;
+    }
+    .add{
+      margin-top:10px;
+      width:100%;
+      border:0;
+      border-radius:12px;
+      padding:10px;
+      background:#f1ece5;
+      color:var(--text);
+      font-weight:650;
+    }
+    .add.added{
+      background:var(--accent);
+      color:#fff;
+    }
+    .summary{
+      margin-top:18px;
+      border:1px solid var(--line);
+      background:var(--card);
+      border-radius:16px;
+      padding:16px;
+    }
+    .summary-row{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      padding:7px 0;
+    }
+    .summary-row.total{
+      border-top:1px solid var(--line);
+      margin-top:8px;
+      padding-top:14px;
+      font-weight:800;
+      font-size:1.08rem;
+    }
+    .bottom{
+      position:fixed;
+      left:0; right:0; bottom:0;
+      background:rgba(247,244,238,.96);
+      backdrop-filter:blur(12px);
+      border-top:1px solid var(--line);
+      padding:12px 16px 16px;
+    }
+    .bottom-inner{
+      width:min(100%,560px);
+      margin:0 auto;
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .btn{
+      border:0;
+      border-radius:14px;
+      padding:14px 18px;
+      font-weight:750;
+      min-height:48px;
+    }
+    .btn.primary{
+      flex:1;
+      background:var(--accent);
+      color:#fff;
+    }
+    .btn.secondary{
+      background:#ebe4dc;
+      color:var(--text);
+    }
+    .mini{
+      color:var(--muted);
+      font-size:.9rem;
+    }
+    .footer{
+      margin-top:40px;
+      padding-top:22px;
+      border-top:1px solid var(--line);
+      color:var(--muted);
+      font-size:.92rem;
+      line-height:1.8;
+    }
+    .footer a{
+      color:var(--text);
+      text-decoration:none;
+      font-weight:650;
+    }
+    .visit-multi .choice{
+      position:relative;
+      cursor:pointer;
+    }
+    .visit-check{
+      position:absolute;
+      opacity:0;
+      pointer-events:none;
+    }
+    .visit-multi .choice:has(.visit-check:checked){
+      border-color:var(--accent);
+      box-shadow:0 0 0 2px rgba(107,79,58,.08);
+      background:#fffdf9;
+    }
+    @media (min-width:700px){
+      .app{padding-top:28px}
+      .products{grid-template-columns:repeat(3,1fr)}
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        Empório São Marcos
+        <small>Presentes & produtos regionais</small>
+      </div>
+      <button class="ghost" id="homeBtn">Início</button>
+    </header>
+
+    <section id="home" class="section active">
+      <div class="hero">
+        <h1>O que você quer fazer?</h1>
+        <p class="lead">Escolha uma opção e siga poucos passos.</p>
+      </div>
+
+      <div class="actions">
+        <button class="action-card primary" data-go="step1">
+          <strong>🎁 Montar um presente</strong>
+          <span>Escolha a base, os itens e finalize.</span>
+        </button>
+
+        <button class="action-card" data-go="quote">
+          <strong>📦 Pedir uma cotação</strong>
+          <span>Para empresas, eventos ou maior quantidade.</span>
+        </button>
+
+        <button class="action-card" data-go="visit">
+          <strong>👥 Agendar uma visita</strong>
+          <span>Memorial, degustação, compras ou grupos.</span>
+        </button>
+
+        <button class="action-card" data-go="contact">
+          <strong>💬 Contato</strong>
+          <span>WhatsApp, Instagram, endereço e horário.</span>
+        </button>
+      </div>
+    </section>
+
+    <section id="step1" class="section">
+      <div class="eyebrow">Passo 1 de 5</div>
+      <h2>Para quando você precisa?</h2>
+      <div class="progress"><i class="on"></i><i></i><i></i><i></i><i></i></div>
+
+      <div class="field">
+        <label for="date">Data</label>
+        <input id="date" type="date">
+      </div>
+
+      <div class="field">
+        <label for="time">Horário</label>
+        <select id="time">
+          <option>Manhã</option>
+          <option>Tarde</option>
+          <option>Fim da tarde</option>
+        </select>
+      </div>
+    </section>
+
+    <section id="step2" class="section">
+      <div class="eyebrow">Passo 2 de 5</div>
+      <h2>Qual é a ocasião?</h2>
+      <div class="progress"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>
+
+      <div class="choice-grid">
+        <button class="choice"><span class="icon">🎂</span>Aniversário</button>
+        <button class="choice"><span class="icon">❤️</span>Especial</button>
+        <button class="choice"><span class="icon">🥂</span>Comemoração</button>
+        <button class="choice"><span class="icon">🙏</span>Agradecimento</button>
+      </div>
+    </section>
+
+    <section id="step3" class="section">
+      <div class="eyebrow">Passo 3 de 5</div>
+      <h2>Como você quer montar?</h2>
+      <div class="progress"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div>
+
+      <div class="choice-grid">
+        <button class="choice base" data-base="Cesta" data-price="25"><span class="icon">🧺</span>Cesta<br><span class="mini">a partir de R$ 25</span></button>
+        <button class="choice base" data-base="Caixa" data-price="20"><span class="icon">🎁</span>Caixa<br><span class="mini">a partir de R$ 20</span></button>
+        <button class="choice base" data-base="Tábua" data-price="35"><span class="icon">🧀</span>Tábua<br><span class="mini">a partir de R$ 35</span></button>
+        <button class="choice base" data-base="Kit" data-price="15"><span class="icon">🍷</span>Kit<br><span class="mini">a partir de R$ 15</span></button>
+      </div>
+    </section>
+
+    <section id="step4" class="section">
+      <div class="eyebrow">Passo 4 de 5</div>
+      <h2>Monte seu presente</h2>
+      <div class="progress"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+      <p class="lead">Adicione só o que fizer sentido. O valor atualiza na hora.</p>
+
+      <div class="products">
+        <article class="product">
+          <div class="product-img">🍷</div>
+          <div class="product-body">
+            <div class="product-name">Vinho da Serra</div>
+            <div class="price">R$ 59,90</div>
+            <button class="add" data-name="Vinho da Serra" data-price="59.90">Adicionar</button>
+          </div>
+        </article>
+
+        <article class="product">
+          <div class="product-img">🧀</div>
+          <div class="product-body">
+            <div class="product-name">Queijo colonial</div>
+            <div class="price">R$ 28,00</div>
+            <button class="add" data-name="Queijo colonial" data-price="28">Adicionar</button>
+          </div>
+        </article>
+
+        <article class="product">
+          <div class="product-img">🥓</div>
+          <div class="product-body">
+            <div class="product-name">Salame artesanal</div>
+            <div class="price">R$ 24,90</div>
+            <button class="add" data-name="Salame artesanal" data-price="24.90">Adicionar</button>
+          </div>
+        </article>
+
+        <article class="product">
+          <div class="product-img">🍫</div>
+          <div class="product-body">
+            <div class="product-name">Chocolate</div>
+            <div class="price">R$ 16,00</div>
+            <button class="add" data-name="Chocolate" data-price="16">Adicionar</button>
+          </div>
+        </article>
+
+        <article class="product">
+          <div class="product-img">🍯</div>
+          <div class="product-body">
+            <div class="product-name">Geleia artesanal</div>
+            <div class="price">R$ 18,50</div>
+            <button class="add" data-name="Geleia artesanal" data-price="18.50">Adicionar</button>
+          </div>
+        </article>
+
+        <article class="product">
+          <div class="product-img">🥂</div>
+          <div class="product-body">
+            <div class="product-name">Espumante</div>
+            <div class="price">R$ 69,90</div>
+            <button class="add" data-name="Espumante" data-price="69.90">Adicionar</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="step5" class="section">
+      <div class="eyebrow">Passo 5 de 5</div>
+      <h2>Seu presente está pronto</h2>
+      <div class="progress"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
+
+      <div class="field">
+        <label for="message">Mensagem do cartão</label>
+        <textarea id="message" rows="4" placeholder="Escreva uma mensagem..."></textarea>
+      </div>
+
+      <div class="field">
+        <label for="delivery">Como quer receber?</label>
+        <select id="delivery">
+          <option>Retirar no Empório</option>
+          <option>Entrega</option>
+        </select>
+      </div>
+
+      <div class="summary" id="summary"></div>
+    </section>
+
+    <section id="quote" class="section">
+      <div class="eyebrow">Cotação</div>
+      <h2>Precisa de vários presentes?</h2>
+      <p class="lead">Informe o básico. O Empório entra em contato com uma proposta.</p>
+
+      <div class="field">
+        <label>Quantidade aproximada</label>
+        <input type="number" placeholder="Ex.: 30">
+      </div>
+
+      <div class="field">
+        <label>Faixa de valor por presente</label>
+        <select>
+          <option>Até R$ 100</option>
+          <option>R$ 100 a R$ 150</option>
+          <option>R$ 150 a R$ 250</option>
+          <option>Acima de R$ 250</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Para quando?</label>
+        <input type="date">
+      </div>
+
+      <div class="field">
+        <label>Contato</label>
+        <input type="text" placeholder="Nome e telefone">
+      </div>
+
+      <div class="field">
+        <label>Conte um pouco do que precisa</label>
+        <textarea rows="4" placeholder="Ex.: Quero 30 presentes com vinho, produtos regionais e cartão personalizado."></textarea>
+      </div>
+
+      <div class="field">
+        <button class="btn primary" style="width:100%">Solicitar cotação</button>
+      </div>
+    </section>
+
+    <section id="visit" class="section">
+      <div class="eyebrow">Visita</div>
+      <h2>O que você gostaria de fazer?</h2>
+      <p class="lead">Escolha uma opção e informe os dados da visita. O horário será confirmado pelo Empório.</p>
+
+      <div class="choice-grid visit-multi">
+        <label class="choice">
+          <input class="visit-check" type="checkbox" value="Visita ao Memorial">
+          <span class="icon">🏛️</span>
+          <span>Visita ao Memorial</span>
+        </label>
+        <label class="choice">
+          <input class="visit-check" type="checkbox" value="Degustação">
+          <span class="icon">🍷</span>
+          <span>Degustação</span>
+        </label>
+        <label class="choice">
+          <input class="visit-check" type="checkbox" value="Compras na loja">
+          <span class="icon">🛍️</span>
+          <span>Compras na loja</span>
+        </label>
+        <label class="choice">
+          <input class="visit-check" type="checkbox" value="Grupo / excursão">
+          <span class="icon">🚌</span>
+          <span>Grupo / excursão</span>
+        </label>
+        <label class="choice">
+          <input class="visit-check" type="checkbox" value="Almoço">
+          <span class="icon">🍽️</span>
+          <span>Almoço</span>
+        </label>
+        <label class="choice">
+          <input class="visit-check" type="checkbox" value="Lanches / Café colonial">
+          <span class="icon">☕</span>
+          <span>Lanches / Café colonial</span>
+        </label>
+      </div>
+
+      <div class="field">
+        <label>Data desejada</label>
+        <input type="date">
+      </div>
+
+      <div class="field">
+        <label>Horário aproximado</label>
+        <select>
+          <option>Manhã</option>
+          <option>Tarde</option>
+          <option>Fim da tarde</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Quantas pessoas?</label>
+        <input type="number" placeholder="Ex.: 8">
+      </div>
+
+      <div class="field">
+        <label>Contato</label>
+        <input type="text" placeholder="Nome e telefone">
+      </div>
+
+      <div class="field">
+        <label>Quer contar algo?</label>
+        <textarea rows="4" placeholder="Ex.: Grupo de amigos, queremos conhecer o Memorial e fazer uma degustação."></textarea>
+      </div>
+
+      <div class="field">
+        <button class="btn primary" style="width:100%">Agendar visita</button>
+      </div>
+    </section>
+
+    <section id="contact" class="section">
+      <div class="eyebrow">Contato</div>
+      <h2>Empório São Marcos</h2>
+      <p class="lead">Prefere falar direto com a gente? Sem problema.</p>
+
+      <div class="actions">
+        <button class="action-card"><strong>WhatsApp</strong><span>Falar com o Empório</span></button>
+        <button class="action-card"><strong>Instagram</strong><span>Acompanhar novidades</span></button>
+        <button class="action-card"><strong>Como chegar</strong><span>Ver localização</span></button>
+      </div>
+
+      <div class="footer">
+        <strong>Empório São Marcos</strong><br>
+        Produtos regionais, vinhos, cestas e presentes.<br>
+        <a href="#">Horários</a> · <a href="#">Instagram</a> · <a href="#">WhatsApp</a>
+      </div>
+    </section>
+  </main>
+
+  <div class="bottom" id="bottomBar" hidden>
+    <div class="bottom-inner">
+      <button class="btn secondary" id="backBtn">Voltar</button>
+      <button class="btn primary" id="nextBtn">Continuar</button>
+    </div>
+  </div>
+
+  <script>
+    const sections = [...document.querySelectorAll('.section')];
+    const homeBtn = document.getElementById('homeBtn');
+    const bottomBar = document.getElementById('bottomBar');
+    const backBtn = document.getElementById('backBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    let current = 'home';
+    let baseName = '';
+    let basePrice = 0;
+    const items = new Map();
+
+    const order = ['step1','step2','step3','step4','step5'];
+
+    function show(id){
+      current = id;
+      sections.forEach(s => s.classList.toggle('active', s.id === id));
+      bottomBar.hidden = !order.includes(id);
+
+      if(id === 'step5'){
+        nextBtn.textContent = 'Enviar pedido pelo WhatsApp';
+        renderSummary();
+      } else {
+        nextBtn.textContent = 'Continuar';
+      }
+
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    document.querySelectorAll('[data-go]').forEach(btn=>{
+      btn.addEventListener('click',()=>show(btn.dataset.go));
+    });
+
+    homeBtn.addEventListener('click',()=>show('home'));
+
+    nextBtn.addEventListener('click',()=>{
+      const idx = order.indexOf(current);
+      if(idx >= 0 && idx < order.length-1){
+        show(order[idx+1]);
+      } else if(current === 'step5'){
+        alert('Protótipo: aqui abriria o WhatsApp com o pedido completo.');
+      }
+    });
+
+    backBtn.addEventListener('click',()=>{
+      const idx = order.indexOf(current);
+      if(idx > 0){
+        show(order[idx-1]);
+      } else {
+        show('home');
+      }
+    });
+
+    document.querySelectorAll('.choice').forEach(btn=>{
+      if(btn.closest('.visit-multi')) return;
+      btn.addEventListener('click',()=>{
+        const group = btn.closest('.choice-grid');
+        group.querySelectorAll('.choice').forEach(b=>b.classList.remove('selected'));
+        btn.classList.add('selected');
+      });
+    });
+
+    document.querySelectorAll('.base').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        baseName = btn.dataset.base;
+        basePrice = Number(btn.dataset.price);
+      });
+    });
+
+    document.querySelectorAll('.add').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const name = btn.dataset.name;
+        const price = Number(btn.dataset.price);
+
+        if(items.has(name)){
+          items.delete(name);
+          btn.classList.remove('added');
+          btn.textContent = 'Adicionar';
+        } else {
+          items.set(name,price);
+          btn.classList.add('added');
+          btn.textContent = 'Adicionado ✓';
+        }
+      });
+    });
+
+    function money(n){
+      return n.toLocaleString('pt-BR',{
+        style:'currency',
+        currency:'BRL'
+      });
+    }
+
+    function renderSummary(){
+      const summary = document.getElementById('summary');
+
+      const itemRows = [...items.entries()].map(([name,price]) =>
+        `<div class="summary-row"><span>${name}</span><strong>${money(price)}</strong></div>`
+      ).join('');
+
+      const total = basePrice + [...items.values()].reduce((a,b)=>a+b,0);
+
+      summary.innerHTML = `
+        <div class="summary-row">
+          <span>${baseName || 'Base do presente'}</span>
+          <strong>${money(basePrice)}</strong>
+        </div>
+        ${itemRows || '<div class="mini">Nenhum item adicionado ainda.</div>'}
+        <div class="summary-row total">
+          <span>Total</span>
+          <span>${money(total)}</span>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>
