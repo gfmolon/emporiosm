@@ -270,47 +270,44 @@
       font-weight:650;
     }
 
-    .utility-links{
-      display:grid;
-      gap:10px;
-      margin-top:18px;
+    .home-extra{
+      margin-top:14px;
+      text-align:center;
     }
 
-    .utility-link,
-    .hours-toggle{
-      width:100%;
-      border:1px solid var(--line);
-      background:var(--card);
-      color:var(--text);
-      border-radius:14px;
-      padding:14px 16px;
+    .home-extra a{
+      color:var(--accent);
       text-decoration:none;
-      font-weight:650;
-      text-align:left;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
+      font-weight:700;
+      font-size:.95rem;
     }
 
-    .utility-link small,
-    .hours-toggle small{
-      display:block;
-      margin-top:3px;
+    .home-extra a span{
       color:var(--muted);
       font-weight:500;
-      line-height:1.35;
+    }
+
+    .contact-meta{
+      margin-top:20px;
+      padding-top:18px;
+      border-top:1px solid var(--line);
+    }
+
+    .hours-toggle{
+      border:0;
+      background:transparent;
+      color:var(--text);
+      padding:0;
+      font-weight:700;
+      text-align:left;
     }
 
     .hours-box{
       display:none;
       margin-top:10px;
-      padding:14px 16px;
-      border:1px solid var(--line);
-      border-radius:14px;
-      background:var(--card);
       color:var(--muted);
-      line-height:1.7;
+      line-height:1.65;
+      font-size:.93rem;
     }
 
     .hours-box.open{display:block}
@@ -371,6 +368,12 @@
           <strong>💬 Contato</strong>
           <span>WhatsApp, Instagram, endereço e horário.</span>
         </button>
+      </div>
+
+      <div class="home-extra">
+        <a href="https://drive.google.com/file/d/1CmiSg8iIJxm9bJl0iaKjUhT24J5eTtGw/view" target="_blank" rel="noopener">
+          🍷 Ver catálogo de vinhos <span>↗</span>
+        </a>
       </div>
     </section>
 
@@ -511,12 +514,12 @@
 
       <div class="field">
         <label>Quantidade aproximada</label>
-        <input type="number" placeholder="Ex.: 30">
+        <input id="quoteQty" type="number" placeholder="Ex.: 30">
       </div>
 
       <div class="field">
         <label>Faixa de valor por presente</label>
-        <select>
+        <select id="quoteRange">
           <option>Até R$ 100</option>
           <option>R$ 100 a R$ 150</option>
           <option>R$ 150 a R$ 250</option>
@@ -526,21 +529,21 @@
 
       <div class="field">
         <label>Para quando?</label>
-        <input type="date">
+        <input id="quoteDate" type="date">
       </div>
 
       <div class="field">
         <label>Contato</label>
-        <input type="text" placeholder="Nome e telefone">
+        <input id="quoteContact" type="text" placeholder="Nome e telefone">
       </div>
 
       <div class="field">
         <label>Conte um pouco do que precisa</label>
-        <textarea rows="4" placeholder="Ex.: Quero 30 presentes com vinho, produtos regionais e cartão personalizado."></textarea>
+        <textarea id="quoteDetails" rows="4" placeholder="Ex.: Quero 30 presentes com vinho, produtos regionais e cartão personalizado."></textarea>
       </div>
 
       <div class="field">
-        <button class="btn primary" style="width:100%">Solicitar cotação</button>
+        <button class="btn primary" id="quoteWhatsApp" style="width:100%">Solicitar cotação pelo WhatsApp</button>
       </div>
     </section>
 
@@ -584,12 +587,12 @@
 
       <div class="field">
         <label>Data desejada</label>
-        <input type="date">
+        <input id="visitDate" type="date">
       </div>
 
       <div class="field">
         <label>Horário aproximado</label>
-        <select>
+        <select id="visitTime">
           <option>Manhã</option>
           <option>Tarde</option>
           <option>Fim da tarde</option>
@@ -598,21 +601,21 @@
 
       <div class="field">
         <label>Quantas pessoas?</label>
-        <input type="number" placeholder="Ex.: 8">
+        <input id="visitPeople" type="number" placeholder="Ex.: 8">
       </div>
 
       <div class="field">
         <label>Contato</label>
-        <input type="text" placeholder="Nome e telefone">
+        <input id="visitContact" type="text" placeholder="Nome e telefone">
       </div>
 
       <div class="field">
         <label>Quer contar algo?</label>
-        <textarea rows="4" placeholder="Ex.: Grupo de amigos, queremos conhecer o Memorial e fazer uma degustação."></textarea>
+        <textarea id="visitNotes" rows="4" placeholder="Ex.: Grupo de amigos, queremos conhecer o Memorial e fazer uma degustação."></textarea>
       </div>
 
       <div class="field">
-        <button class="btn primary" style="width:100%">Agendar visita</button>
+        <button class="btn primary" id="visitWhatsApp" style="width:100%">Agendar visita pelo WhatsApp</button>
       </div>
     </section>
 
@@ -622,40 +625,37 @@
       <p class="lead">Prefere falar direto com a gente? Sem problema.</p>
 
       <div class="actions">
-        <button class="action-card"><strong>WhatsApp</strong><span>Falar com o Empório</span></button>
-        <button class="action-card"><strong>Instagram</strong><span>Acompanhar novidades</span></button>
-        <button class="action-card"><strong>Como chegar</strong><span>Ver localização</span></button>
+        <button class="action-card" id="contactWhatsApp">
+          <strong>WhatsApp</strong>
+          <span>Falar com o Empório</span>
+        </button>
+
+        <button class="action-card">
+          <strong>Instagram</strong>
+          <span>Acompanhar novidades</span>
+        </button>
+
+        <button class="action-card">
+          <strong>Como chegar</strong>
+          <span>Ver localização</span>
+        </button>
       </div>
 
-      <div class="utility-links">
-        <a class="utility-link" href="catalogo-vinhos.pdf" download>
-          <span>
-            🍷 Catálogo de vinhos
-            <small>Baixar catálogo em PDF</small>
-          </span>
-          <span>↓</span>
-        </a>
-
+      <div class="contact-meta">
         <button class="hours-toggle" id="hoursToggle" type="button" aria-expanded="false" aria-controls="hoursBox">
-          <span>
-            🕐 Horários
-            <small>Ver horários de atendimento</small>
-          </span>
-          <span id="hoursArrow">+</span>
+          🕐 Ver horários
         </button>
 
         <div class="hours-box" id="hoursBox">
-          <strong>Segunda a sexta</strong><br>
-          8h às 19h<br><br>
-          <strong>Sábado e domingo</strong><br>
-          9h às 15h
+          <strong>Segunda a sexta:</strong> 8h às 19h<br>
+          <strong>Sábado e domingo:</strong> 9h às 15h
         </div>
       </div>
 
       <div class="footer">
         <strong>Empório São Marcos</strong><br>
         Produtos regionais, vinhos, cestas e presentes.<br>
-        <span>São Marcos · RS</span>
+        São Marcos · RS
       </div>
     </section>
   </main>
@@ -707,7 +707,26 @@
       if(idx >= 0 && idx < order.length-1){
         show(order[idx+1]);
       } else if(current === 'step5'){
-        alert('Protótipo: aqui abriria o WhatsApp com o pedido completo.');
+        const date = document.getElementById('date').value || 'Não informada';
+        const time = document.getElementById('time').value || 'Não informado';
+        const occasion = document.querySelector('#step2 .choice.selected')?.innerText.trim() || 'Não informada';
+        const message = document.getElementById('message').value.trim() || 'Sem mensagem';
+        const delivery = document.getElementById('delivery').value;
+        const total = basePrice + [...items.values()].reduce((a,b)=>a+b,0);
+        const itemList = [...items.keys()].length ? [...items.keys()].join(', ') : 'Nenhum item';
+
+        const text = `Olá! Montei um presente pelo site do Empório São Marcos.
+
+Data: ${date}
+Horário: ${time}
+Ocasião: ${occasion}
+Base: ${baseName || 'Não escolhida'}
+Itens: ${itemList}
+Mensagem do cartão: ${message}
+Recebimento: ${delivery}
+Total estimado: ${money(total)}`;
+
+        openWhatsApp(text);
       }
     });
 
@@ -780,6 +799,64 @@
           <span>${money(total)}</span>
         </div>
       `;
+    }
+
+    const WHATSAPP_NUMBER = '5554996329095';
+
+    function openWhatsApp(text){
+      const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+      window.open(url, '_blank', 'noopener');
+    }
+
+    const contactWhatsApp = document.getElementById('contactWhatsApp');
+    if(contactWhatsApp){
+      contactWhatsApp.addEventListener('click',()=>{
+        openWhatsApp('Olá! Vim pelo site do Empório São Marcos e gostaria de falar com vocês.');
+      });
+    }
+
+    const quoteWhatsApp = document.getElementById('quoteWhatsApp');
+    if(quoteWhatsApp){
+      quoteWhatsApp.addEventListener('click',()=>{
+        const qty = document.getElementById('quoteQty').value || 'Não informada';
+        const range = document.getElementById('quoteRange').value;
+        const date = document.getElementById('quoteDate').value || 'Não informada';
+        const contact = document.getElementById('quoteContact').value.trim() || 'Não informado';
+        const details = document.getElementById('quoteDetails').value.trim() || 'Sem observações';
+
+        const text = `Olá! Gostaria de solicitar uma cotação no Empório São Marcos.
+
+Quantidade aproximada: ${qty}
+Faixa por presente: ${range}
+Data: ${date}
+Contato: ${contact}
+Detalhes: ${details}`;
+
+        openWhatsApp(text);
+      });
+    }
+
+    const visitWhatsApp = document.getElementById('visitWhatsApp');
+    if(visitWhatsApp){
+      visitWhatsApp.addEventListener('click',()=>{
+        const selected = [...document.querySelectorAll('.visit-check:checked')].map(el=>el.value);
+        const date = document.getElementById('visitDate').value || 'Não informada';
+        const time = document.getElementById('visitTime').value;
+        const people = document.getElementById('visitPeople').value || 'Não informado';
+        const contact = document.getElementById('visitContact').value.trim() || 'Não informado';
+        const notes = document.getElementById('visitNotes').value.trim() || 'Sem observações';
+
+        const text = `Olá! Gostaria de agendar uma visita ao Empório São Marcos.
+
+Interesses: ${selected.length ? selected.join(', ') : 'Não informado'}
+Data desejada: ${date}
+Horário aproximado: ${time}
+Pessoas: ${people}
+Contato: ${contact}
+Observações: ${notes}`;
+
+        openWhatsApp(text);
+      });
     }
 
     const hoursToggle = document.getElementById('hoursToggle');
