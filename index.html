@@ -160,7 +160,45 @@
       outline:none;
       font-size:16px;
     }
-    input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+    input:focus,textarea:focus,select:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 3px rgba(107,79,58,.10);
+    }
+
+    .field-error{
+      margin-top:7px;
+      color:#9a3e32;
+      font-size:.88rem;
+      line-height:1.35;
+    }
+
+    .invalid{
+      border-color:#b85649 !important;
+      box-shadow:0 0 0 3px rgba(184,86,73,.10) !important;
+    }
+
+    .section-back{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      border:0;
+      background:transparent;
+      color:var(--muted);
+      padding:0;
+      margin-bottom:18px;
+      font-weight:650;
+    }
+
+    .notice{
+      margin-top:18px;
+      padding:12px 14px;
+      border:1px solid var(--line);
+      background:#fffaf3;
+      border-radius:14px;
+      color:var(--muted);
+      font-size:.9rem;
+      line-height:1.45;
+    }
     .products{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -344,7 +382,7 @@
         Empório São Marcos
         <small>Presentes & produtos regionais</small>
       </div>
-      <button class="ghost" id="homeBtn">Início</button>
+      <button class="ghost" id="homeBtn" type="button">Início</button>
     </header>
 
     <section id="home" class="section active">
@@ -354,22 +392,22 @@
       </div>
 
       <div class="actions">
-        <button class="action-card primary" data-go="step1">
+        <button class="action-card primary" data-go="step1" type="button">
           <strong>🎁 Montar um presente</strong>
           <span>Escolha a base, os itens e finalize.</span>
         </button>
 
-        <button class="action-card" data-go="quote">
+        <button class="action-card" data-go="quote" type="button">
           <strong>📦 Pedir uma cotação</strong>
           <span>Para empresas, eventos ou maior quantidade.</span>
         </button>
 
-        <button class="action-card" data-go="visit">
+        <button class="action-card" data-go="visit" type="button">
           <strong>👥 Agendar uma visita</strong>
           <span>Memorial, degustação, compras ou grupos.</span>
         </button>
 
-        <button class="action-card" data-go="contact">
+        <button class="action-card" data-go="contact" type="button">
           <strong>💬 Contato</strong>
           <span>WhatsApp, Instagram, endereço e horário.</span>
         </button>
@@ -389,7 +427,7 @@
 
       <div class="field">
         <label for="date">Data</label>
-        <input id="date" type="date">
+        <input id="date" type="date" required>
       </div>
 
       <div class="field">
@@ -513,13 +551,14 @@
     </section>
 
     <section id="quote" class="section">
+      <button class="section-back" type="button" data-go="home">← Voltar</button>
       <div class="eyebrow">Cotação</div>
       <h2>Precisa de vários presentes?</h2>
       <p class="lead">Informe o básico. O Empório entra em contato com uma proposta.</p>
 
       <div class="field">
         <label>Quantidade aproximada</label>
-        <input id="quoteQty" type="number" placeholder="Ex.: 30">
+        <input id="quoteQty" type="number" min="1" step="1" inputmode="numeric" placeholder="Ex.: 30" required>
       </div>
 
       <div class="field">
@@ -534,12 +573,12 @@
 
       <div class="field">
         <label>Para quando?</label>
-        <input id="quoteDate" type="date">
+        <input id="quoteDate" type="date" required>
       </div>
 
       <div class="field">
         <label>Contato</label>
-        <input id="quoteContact" type="text" placeholder="Nome e telefone">
+        <input id="quoteContact" type="text" autocomplete="name" placeholder="Nome e telefone" required>
       </div>
 
       <div class="field">
@@ -553,6 +592,7 @@
     </section>
 
     <section id="visit" class="section">
+      <button class="section-back" type="button" data-go="home">← Voltar</button>
       <div class="eyebrow">Visita</div>
       <h2>O que você gostaria de fazer?</h2>
       <p class="lead">Escolha uma ou mais opções e informe os dados da visita. O horário será confirmado pelo Empório.</p>
@@ -592,7 +632,7 @@
 
       <div class="field">
         <label>Data desejada</label>
-        <input id="visitDate" type="date">
+        <input id="visitDate" type="date" required>
       </div>
 
       <div class="field">
@@ -606,12 +646,12 @@
 
       <div class="field">
         <label>Quantas pessoas?</label>
-        <input id="visitPeople" type="number" placeholder="Ex.: 8">
+        <input id="visitPeople" type="number" min="1" step="1" inputmode="numeric" placeholder="Ex.: 8" required>
       </div>
 
       <div class="field">
         <label>Contato</label>
-        <input id="visitContact" type="text" placeholder="Nome e telefone">
+        <input id="visitContact" type="text" autocomplete="name" placeholder="Nome e telefone" required>
       </div>
 
       <div class="field">
@@ -625,6 +665,7 @@
     </section>
 
     <section id="contact" class="section">
+      <button class="section-back" type="button" data-go="home">← Voltar</button>
       <div class="eyebrow">Contato</div>
       <h2>Empório São Marcos</h2>
       <p class="lead">Prefere falar direto com a gente? Sem problema.</p>
@@ -688,7 +729,70 @@
 
     const order = ['step1','step2','step3','step4','step5'];
 
+    function clearErrors(scope = document){
+      scope.querySelectorAll('.field-error').forEach(el=>el.remove());
+      scope.querySelectorAll('.invalid').forEach(el=>el.classList.remove('invalid'));
+    }
+
+    function showError(el, message){
+      el.classList.add('invalid');
+      const wrap = el.closest('.field') || el.parentElement;
+      const err = document.createElement('div');
+      err.className = 'field-error';
+      err.textContent = message;
+      wrap.appendChild(err);
+      el.focus({preventScroll:true});
+      el.scrollIntoView({behavior:'smooth', block:'center'});
+      return false;
+    }
+
+    function validateGiftStep(){
+      clearErrors(document.getElementById(current));
+
+      if(current === 'step1'){
+        const date = document.getElementById('date');
+        if(!date.value) return showError(date, 'Escolha a data desejada para continuar.');
+      }
+
+      if(current === 'step2'){
+        const occasion = document.querySelector('#step2 .choice.selected');
+        if(!occasion){
+          const grid = document.querySelector('#step2 .choice-grid');
+          const err = document.createElement('div');
+          err.className = 'field-error';
+          err.textContent = 'Escolha uma ocasião para continuar.';
+          grid.insertAdjacentElement('afterend', err);
+          grid.scrollIntoView({behavior:'smooth', block:'center'});
+          return false;
+        }
+      }
+
+      if(current === 'step3' && !baseName){
+        const grid = document.querySelector('#step3 .choice-grid');
+        const err = document.createElement('div');
+        err.className = 'field-error';
+        err.textContent = 'Escolha uma base para o presente.';
+        grid.insertAdjacentElement('afterend', err);
+        grid.scrollIntoView({behavior:'smooth', block:'center'});
+        return false;
+      }
+
+      return true;
+    }
+
+    function todayISO(){
+      const d = new Date();
+      const local = new Date(d.getTime() - d.getTimezoneOffset()*60000);
+      return local.toISOString().slice(0,10);
+    }
+
+    ['date','quoteDate','visitDate'].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.min = todayISO();
+    });
+
     function show(id){
+      clearErrors();
       current = id;
       sections.forEach(s => s.classList.toggle('active', s.id === id));
       bottomBar.hidden = !order.includes(id);
@@ -712,6 +816,7 @@
     nextBtn.addEventListener('click',()=>{
       const idx = order.indexOf(current);
       if(idx >= 0 && idx < order.length-1){
+        if(!validateGiftStep()) return;
         show(order[idx+1]);
       } else if(current === 'step5'){
         const date = document.getElementById('date').value || 'Não informada';
@@ -812,7 +917,10 @@ Total estimado: ${money(total)}`;
 
     function openWhatsApp(text){
       const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
-      window.open(url, '_blank', 'noopener');
+      const opened = window.open(url, '_blank', 'noopener');
+      if(!opened){
+        window.location.href = url;
+      }
     }
 
     const contactWhatsApp = document.getElementById('contactWhatsApp');
@@ -825,10 +933,21 @@ Total estimado: ${money(total)}`;
     const quoteWhatsApp = document.getElementById('quoteWhatsApp');
     if(quoteWhatsApp){
       quoteWhatsApp.addEventListener('click',()=>{
-        const qty = document.getElementById('quoteQty').value || 'Não informada';
+        const section = document.getElementById('quote');
+        clearErrors(section);
+
+        const qtyEl = document.getElementById('quoteQty');
+        const dateEl = document.getElementById('quoteDate');
+        const contactEl = document.getElementById('quoteContact');
+
+        if(!qtyEl.value || Number(qtyEl.value) < 1) return showError(qtyEl, 'Informe uma quantidade válida.');
+        if(!dateEl.value) return showError(dateEl, 'Escolha a data desejada.');
+        if(!contactEl.value.trim()) return showError(contactEl, 'Informe um nome e telefone para contato.');
+
+        const qty = qtyEl.value;
         const range = document.getElementById('quoteRange').value;
-        const date = document.getElementById('quoteDate').value || 'Não informada';
-        const contact = document.getElementById('quoteContact').value.trim() || 'Não informado';
+        const date = dateEl.value;
+        const contact = contactEl.value.trim();
         const details = document.getElementById('quoteDetails').value.trim() || 'Sem observações';
 
         const text = `Olá! Gostaria de solicitar uma cotação no Empório São Marcos.
@@ -846,16 +965,37 @@ Detalhes: ${details}`;
     const visitWhatsApp = document.getElementById('visitWhatsApp');
     if(visitWhatsApp){
       visitWhatsApp.addEventListener('click',()=>{
+        const section = document.getElementById('visit');
+        clearErrors(section);
+
         const selected = [...document.querySelectorAll('.visit-check:checked')].map(el=>el.value);
-        const date = document.getElementById('visitDate').value || 'Não informada';
+        const dateEl = document.getElementById('visitDate');
+        const peopleEl = document.getElementById('visitPeople');
+        const contactEl = document.getElementById('visitContact');
+
+        if(!selected.length){
+          const grid = document.querySelector('.visit-multi');
+          const err = document.createElement('div');
+          err.className = 'field-error';
+          err.textContent = 'Escolha pelo menos uma opção para a visita.';
+          grid.insertAdjacentElement('afterend', err);
+          grid.scrollIntoView({behavior:'smooth', block:'center'});
+          return;
+        }
+
+        if(!dateEl.value) return showError(dateEl, 'Escolha a data desejada.');
+        if(!peopleEl.value || Number(peopleEl.value) < 1) return showError(peopleEl, 'Informe quantas pessoas participarão.');
+        if(!contactEl.value.trim()) return showError(contactEl, 'Informe um nome e telefone para contato.');
+
+        const date = dateEl.value;
         const time = document.getElementById('visitTime').value;
-        const people = document.getElementById('visitPeople').value || 'Não informado';
-        const contact = document.getElementById('visitContact').value.trim() || 'Não informado';
+        const people = peopleEl.value;
+        const contact = contactEl.value.trim();
         const notes = document.getElementById('visitNotes').value.trim() || 'Sem observações';
 
         const text = `Olá! Gostaria de agendar uma visita ao Empório São Marcos.
 
-Interesses: ${selected.length ? selected.join(', ') : 'Não informado'}
+Interesses: ${selected.join(', ')}
 Data desejada: ${date}
 Horário aproximado: ${time}
 Pessoas: ${people}
