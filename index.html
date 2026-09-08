@@ -241,6 +241,38 @@
       font-weight:750;
     }
 
+    .date-optional{
+      margin-top:10px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      border:0;
+      background:transparent;
+      color:var(--muted);
+      padding:4px 0;
+      font-size:.94rem;
+      font-weight:700;
+      text-align:left;
+    }
+
+    .date-optional::before{
+      content:'○';
+      color:var(--accent);
+      font-size:1.05rem;
+      line-height:1;
+    }
+
+    .date-optional.active{color:var(--accent)}
+    .date-optional.active::before{content:'✓'}
+
+    .date-help{
+      display:block;
+      margin-top:7px;
+      color:var(--muted);
+      font-size:.9rem;
+      line-height:1.4;
+    }
+
     .type-grid{
       display:grid;
       gap:14px;
@@ -766,8 +798,9 @@
       <div class="progress"><i class="on"></i><i></i><i></i><i></i><i></i></div>
 
       <div class="field">
-        <label for="date">Data</label>
-        <input id="date" type="date" required>
+        <label for="date">Data <span class="mini">(opcional)</span></label>
+        <input id="date" type="date">
+        <button class="date-optional" type="button" data-date-toggle="date">Não quero informar a data</button>
       </div>
 
       <div class="field">
@@ -810,8 +843,8 @@
       <div class="type-grid" id="typeGrid">
         <button class="type-card" type="button" data-kind="kit">
           <span class="type-title">Montar um kit</span>
-          <span class="type-description">Escolha os produtos e monte o presente do seu jeito.</span>
-          <span class="type-meta">Base a partir de R$ 15,00</span>
+          <span class="type-description">Escolha os produtos que mais combinam com o presente. A partir disso, montamos uma sugestão para você.</span>
+          <span class="type-meta">Finalização rápida pelo WhatsApp</span>
         </button>
 
         <button class="type-card" type="button" data-kind="board">
@@ -827,7 +860,7 @@
       <div class="progress"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
 
       <div id="kitBuilder" class="subpanel">
-        <p class="lead">Escolha os produtos que deseja colocar no kit. O valor atualiza automaticamente.</p>
+        <p class="lead">Selecione os produtos que você gostaria de incluir. Vamos usar suas escolhas como referência para montar uma sugestão de kit e acertar os detalhes pelo WhatsApp, de forma rápida e direta.</p>
         <div class="products" id="productsList"></div>
       </div>
 
@@ -893,8 +926,9 @@
       </div>
 
       <div class="field">
-        <label for="quoteDate">Para quando?</label>
-        <input id="quoteDate" type="date" required>
+        <label for="quoteDate">Para quando? <span class="mini">(opcional)</span></label>
+        <input id="quoteDate" type="date">
+        <button class="date-optional" type="button" data-date-toggle="quoteDate">Não quero informar a data</button>
       </div>
 
       <div class="field">
@@ -946,8 +980,9 @@
       </div>
 
       <div class="field">
-        <label for="visitDate">Data desejada</label>
-        <input id="visitDate" type="date" required>
+        <label for="visitDate">Data desejada <span class="mini">(opcional)</span></label>
+        <input id="visitDate" type="date">
+        <button class="date-optional" type="button" data-date-toggle="visitDate">Não quero informar a data</button>
       </div>
 
       <div class="field">
@@ -1169,6 +1204,20 @@
       if(el) el.min = todayISO();
     });
 
+
+    document.querySelectorAll('[data-date-toggle]').forEach(button=>{
+      button.addEventListener('click',()=>{
+        const input = document.getElementById(button.dataset.dateToggle);
+        if(!input) return;
+
+        const skip = !button.classList.contains('active');
+        button.classList.toggle('active',skip);
+        button.textContent = skip ? 'Data não informada' : 'Não quero informar a data';
+        input.disabled = skip;
+        if(skip) input.value = '';
+      });
+    });
+
     function getOccasion(){
       if(!occasionName) return 'Sem ocasião informada';
       if(occasionName !== 'Outro') return occasionName;
@@ -1292,7 +1341,7 @@
           <span>Montagem do kit</span>
           <strong>${money(KIT_BASE_PRICE)}</strong>
         </div>
-        ${itemRows || '<div class="summary-note">Nenhum produto adicional selecionado.</div>'}
+        ${itemRows || '<div class="summary-note">Nenhuma preferência de produto selecionada. O Empório pode sugerir a composição pelo WhatsApp.</div>'}
         <div class="summary-row total">
           <span>Total</span>
           <strong>${money(getTotal())}</strong>
@@ -1320,11 +1369,6 @@
 
     function validateCurrentStep(){
       clearErrors(document.getElementById(current));
-
-      if(current === 'step1'){
-        const date = document.getElementById('date');
-        if(!date.value) return showError(date,'Escolha a data desejada para continuar.');
-      }
 
       if(current === 'step3' && !giftType){
         return showGridError(document.getElementById('typeGrid'),'Escolha entre montar um kit ou pedir uma tábua de frios.');
@@ -1442,8 +1486,8 @@
           const subtotal = selectedBoard.price * boardQuantity;
           orderDetails = `Tipo: Tábua de frios\nTamanho: ${selectedBoard.name}\nQuantidade: ${boardQuantity}\nIngredientes: ${selectedBoard.ingredients}\nSubtotal: ${money(subtotal)}`;
         } else {
-          const itemList = [...items.keys()].length ? [...items.keys()].join(', ') : 'Nenhum produto adicional';
-          orderDetails = `Tipo: Kit presente\nBase do kit: ${money(KIT_BASE_PRICE)}\nProdutos: ${itemList}`;
+          const itemList = [...items.keys()].length ? [...items.keys()].join(', ') : 'Sem preferências específicas';
+          orderDetails = `Tipo: Kit presente\nPreferências para o kit: ${itemList}\nReferência de montagem: ${money(KIT_BASE_PRICE)} de base + itens selecionados\nObservação: o Empório pode sugerir a melhor composição e confirmar os detalhes pelo WhatsApp.`;
         }
 
         const text = `Olá! Montei um pedido pelo site do Empório São Marcos.\n\nData: ${date}\nHorário: ${time}\nOcasião: ${occasion}\n${orderDetails}\nMensagem do cartão: ${message}\nRecebimento: ${delivery}\nTotal estimado: ${money(getTotal())}`;
@@ -1492,12 +1536,11 @@
         const contactEl = document.getElementById('quoteContact');
 
         if(!qtyEl.value || Number(qtyEl.value) < 1) return showError(qtyEl,'Informe uma quantidade válida.');
-        if(!dateEl.value) return showError(dateEl,'Escolha a data desejada.');
         if(!contactEl.value.trim()) return showError(contactEl,'Informe um nome e telefone para contato.');
 
         const qty = qtyEl.value;
         const range = document.getElementById('quoteRange').value;
-        const date = dateEl.value;
+        const date = dateEl.value || 'Não informada';
         const contact = contactEl.value.trim();
         const details = document.getElementById('quoteDetails').value.trim() || 'Sem observações';
 
@@ -1521,11 +1564,10 @@
           return showGridError(document.querySelector('.visit-multi'),'Escolha pelo menos uma opção para a visita.');
         }
 
-        if(!dateEl.value) return showError(dateEl,'Escolha a data desejada.');
         if(!peopleEl.value || Number(peopleEl.value) < 1) return showError(peopleEl,'Informe quantas pessoas participarão.');
         if(!contactEl.value.trim()) return showError(contactEl,'Informe um nome e telefone para contato.');
 
-        const date = dateEl.value;
+        const date = dateEl.value || 'Não informada';
         const time = document.getElementById('visitTime').value;
         const people = peopleEl.value;
         const contact = contactEl.value.trim();
