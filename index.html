@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#6b4f3a">
-  <title>Empório São Marcos</title>
+  <title>Empório São Marcos | Vinhos, sucos e produtos coloniais</title>
 
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%236b4f3a'/%3E%3Cpath d='M24 14h16v5c0 4-2 7-5 9v18h4v5H25v-5h4V28c-3-2-5-5-5-9v-5z' fill='%23f7f4ee'/%3E%3Cpath d='M27 19h10c0 3-1 5-3 6h-4c-2-1-3-3-3-6z' fill='%23efe6da'/%3E%3C/svg%3E">
 
@@ -76,10 +76,12 @@
     .brand small{
       display:block;
       margin-top:4px;
+      max-width:360px;
       color:var(--muted);
       font-size:.92rem;
       font-weight:500;
       letter-spacing:0;
+      line-height:1.35;
     }
 
     .ghost{
@@ -239,6 +241,10 @@
       padding:10px 0;
       text-align:left;
       font-weight:750;
+    }
+
+    .skip-date-time{
+      margin-top:18px;
     }
 
     .date-optional{
@@ -752,7 +758,7 @@
     <header class="topbar">
       <div class="brand">
         Empório São Marcos
-        <small>Presentes & produtos regionais</small>
+        <small>Loja tradicional de vinhos, sucos e produtos coloniais em São Marcos</small>
       </div>
       <button class="ghost" id="homeBtn" type="button">Início</button>
     </header>
@@ -800,17 +806,19 @@
       <div class="field">
         <label for="date">Data <span class="mini">(opcional)</span></label>
         <input id="date" type="date">
-        <button class="date-optional" type="button" data-date-toggle="date">Não quero informar a data</button>
       </div>
 
       <div class="field">
-        <label for="time">Horário aproximado</label>
+        <label for="time">Período <span class="mini">(opcional)</span></label>
         <select id="time">
+          <option value="">Selecione, se quiser</option>
           <option>Manhã</option>
           <option>Tarde</option>
-          <option>Fim da tarde</option>
+          <option>Noite</option>
         </select>
       </div>
+
+      <button class="text-action skip-date-time" id="skipGiftDateBtn" type="button">Não quero informar data nem período →</button>
     </section>
 
     <section id="step2" class="section">
@@ -1204,6 +1212,17 @@
       if(el) el.min = todayISO();
     });
 
+
+    const skipGiftDateBtn = document.getElementById('skipGiftDateBtn');
+    if(skipGiftDateBtn){
+      skipGiftDateBtn.addEventListener('click',()=>{
+        const dateInput = document.getElementById('date');
+        const timeSelect = document.getElementById('time');
+        if(dateInput) dateInput.value = '';
+        if(timeSelect) timeSelect.value = '';
+        show('step2');
+      });
+    }
 
     document.querySelectorAll('[data-date-toggle]').forEach(button=>{
       button.addEventListener('click',()=>{
