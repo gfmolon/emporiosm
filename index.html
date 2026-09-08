@@ -1100,16 +1100,19 @@
     const BOARD_OPTIONS = [
       {
         name:'Tábua de frios pequena',
+        people:2,
         price:65.00,
         ingredients:'Queijos, salame, copa, azeitonas e acompanhamentos.'
       },
       {
         name:'Tábua de frios média',
+        people:4,
         price:95.00,
         ingredients:'Seleção ampliada de frios, queijos e acompanhamentos.'
       },
       {
         name:'Tábua de frios grande',
+        people:6,
         price:135.00,
         ingredients:'Variedade maior de frios, queijos e acompanhamentos.'
       }
@@ -1301,7 +1304,7 @@
               <span class="board-name">${board.name}</span>
               <span class="board-price">${money(board.price)}</span>
             </span>
-            <span class="board-ingredients">${board.ingredients}</span>
+            <span class="board-ingredients"><strong>Para ${board.people} pessoas</strong><br>${board.ingredients}</span>
           </button>
         `;
       }).join('');
@@ -1342,6 +1345,7 @@
             <span>${selectedBoard.name} × ${boardQuantity}</span>
             <strong>${money(subtotal)}</strong>
           </div>
+          <div class="summary-note"><strong>Serve:</strong> ${selectedBoard.people} pessoas</div>
           <div class="summary-note"><strong>Ingredientes:</strong> ${selectedBoard.ingredients}</div>
           <div class="summary-row total">
             <span>Total</span>
@@ -1503,7 +1507,7 @@
 
         if(giftType === 'board'){
           const subtotal = selectedBoard.price * boardQuantity;
-          orderDetails = `Tipo: Tábua de frios\nTamanho: ${selectedBoard.name}\nQuantidade: ${boardQuantity}\nIngredientes: ${selectedBoard.ingredients}\nSubtotal: ${money(subtotal)}`;
+          orderDetails = `Tipo: Tábua de frios\nTamanho: ${selectedBoard.name}\nServe: ${selectedBoard.people} pessoas por tábua\nQuantidade: ${boardQuantity}\nIngredientes: ${selectedBoard.ingredients}\nSubtotal: ${money(subtotal)}`;
         } else {
           const itemList = [...items.keys()].length ? [...items.keys()].join(', ') : 'Sem preferências específicas';
           orderDetails = `Tipo: Kit presente\nPreferências para o kit: ${itemList}\nReferência de montagem: ${money(KIT_BASE_PRICE)} de base + itens selecionados\nObservação: o Empório pode sugerir a melhor composição e confirmar os detalhes pelo WhatsApp.`;
