@@ -26,7 +26,13 @@
       color:var(--text);
     }
     button,input,textarea,select{font:inherit}
-    button{cursor:pointer}
+    button{
+      cursor:pointer;
+      color:var(--text);
+      -webkit-appearance:none;
+      appearance:none;
+      -webkit-tap-highlight-color:transparent;
+    }
     .app{
       width:min(100%,560px);
       margin:0 auto;
@@ -86,6 +92,7 @@
       padding:18px;
       text-align:left;
       width:100%;
+      color:var(--text);
     }
     .action-card strong{
       display:block;
@@ -135,6 +142,7 @@
       background:var(--card);
       padding:16px;
       text-align:left;
+      color:var(--text);
     }
     .choice .icon{
       font-size:1.7rem;
@@ -145,6 +153,30 @@
       border-color:var(--accent);
       box-shadow:0 0 0 2px rgba(107,79,58,.08);
       background:#fffdf9;
+    }
+    .choice-detailed{
+      min-height:160px;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-start;
+    }
+    .choice-title{
+      display:block;
+      font-weight:750;
+      line-height:1.25;
+      margin-bottom:8px;
+    }
+    .choice-price{
+      display:block;
+      color:var(--accent);
+      font-weight:750;
+      margin-bottom:8px;
+    }
+    .choice-note{
+      display:block;
+      color:var(--muted);
+      font-size:.88rem;
+      line-height:1.4;
     }
     .field{margin-top:18px}
     label{
@@ -386,6 +418,11 @@
       box-shadow:0 0 0 2px rgba(107,79,58,.08);
       background:#fffdf9;
     }
+    @media (max-width:520px){
+      #step3 .choice-grid{grid-template-columns:1fr}
+      .choice-detailed{min-height:0}
+    }
+
     @media (min-width:700px){
       .app{padding-top:28px}
     }
@@ -410,7 +447,7 @@
       <div class="actions">
         <button class="action-card primary" data-go="step1" type="button">
           <strong>🎁 Montar um presente</strong>
-          <span>Escolha a base, os itens e finalize.</span>
+          <span>Escolha o tipo, os itens e finalize.</span>
         </button>
 
         <button class="action-card" data-go="quote" type="button">
@@ -471,14 +508,49 @@
 
     <section id="step3" class="section">
       <div class="eyebrow">Passo 3 de 5</div>
-      <h2>Como você quer montar?</h2>
+      <h2>O que você quer pedir?</h2>
       <div class="progress"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div>
 
       <div class="choice-grid">
-        <button class="choice base" data-base="Cesta" data-price="25"><span class="icon">🧺</span>Cesta<br><span class="mini">a partir de R$ 25</span></button>
-        <button class="choice base" data-base="Caixa" data-price="20"><span class="icon">🎁</span>Caixa<br><span class="mini">a partir de R$ 20</span></button>
-        <button class="choice base" data-base="Tábua" data-price="35"><span class="icon">🧀</span>Tábua<br><span class="mini">a partir de R$ 35</span></button>
-        <button class="choice base" data-base="Kit" data-price="15"><span class="icon">🍷</span>Kit<br><span class="mini">a partir de R$ 15</span></button>
+        <button class="choice base choice-detailed" type="button"
+                data-base="Kit presente"
+                data-price="15"
+                data-kind="kit"
+                data-ingredients="">
+          <span class="choice-title">🎁 Kit presente</span>
+          <span class="choice-price">a partir de R$ 15,00</span>
+          <span class="choice-note">Escolha os produtos no próximo passo.</span>
+        </button>
+
+        <button class="choice base choice-detailed" type="button"
+                data-base="Tábua de frios pequena"
+                data-price="65"
+                data-kind="board"
+                data-ingredients="Queijos, salame, copa, azeitonas e acompanhamentos.">
+          <span class="choice-title">🧀 Tábua de frios pequena</span>
+          <span class="choice-price">R$ 65,00</span>
+          <span class="choice-note">Queijos, salame, copa, azeitonas e acompanhamentos.</span>
+        </button>
+
+        <button class="choice base choice-detailed" type="button"
+                data-base="Tábua de frios média"
+                data-price="95"
+                data-kind="board"
+                data-ingredients="Seleção ampliada de frios, queijos e acompanhamentos.">
+          <span class="choice-title">🧀 Tábua de frios média</span>
+          <span class="choice-price">R$ 95,00</span>
+          <span class="choice-note">Seleção ampliada de frios, queijos e acompanhamentos.</span>
+        </button>
+
+        <button class="choice base choice-detailed" type="button"
+                data-base="Tábua de frios grande"
+                data-price="135"
+                data-kind="board"
+                data-ingredients="Variedade maior de frios, queijos e acompanhamentos.">
+          <span class="choice-title">🧀 Tábua de frios grande</span>
+          <span class="choice-price">R$ 135,00</span>
+          <span class="choice-note">Variedade maior de frios, queijos e acompanhamentos.</span>
+        </button>
       </div>
     </section>
 
@@ -493,7 +565,7 @@
 
     <section id="step5" class="section">
       <div class="eyebrow">Passo 5 de 5</div>
-      <h2>Seu presente está pronto</h2>
+      <h2>Seu pedido está pronto</h2>
       <div class="progress"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
 
       <div class="field">
@@ -687,12 +759,20 @@
     let current = 'home';
     let baseName = '';
     let basePrice = 0;
+    let baseKind = '';
+    let baseIngredients = '';
     const items = new Map();
 
     const order = ['step1','step2','step3','step4','step5'];
 
     // ============================================================
-    // PRODUTOS
+    // OPÇÕES DO PASSO 3
+    // Para alterar preços ou ingredientes das tábuas, edite os
+    // atributos data-price e data-ingredients nos botões do step3.
+    // ============================================================
+
+    // ============================================================
+    // PRODUTOS DO KIT
     // Edite apenas esta lista para alterar nomes, categorias e preços.
     // Exemplo:
     // { category:'Vinhos', name:'Nome do produto', price:29.90 },
@@ -705,6 +785,7 @@
       { category:'Sucos', name:'Suco Sinuelo 500 ml', price:10.50 },
       { category:'Sucos', name:'Suco Sinuelo T/B/R 300 ml', price:9.50 },
       { category:'Sucos', name:'Suco de Maçã 1 L', price:17.00 },
+      { category:'Sucos', name:'Suco de Maçã 300 ml', price:9.00 },
 
       { category:'Vinhos', name:'Vinhos Sinuelo 1,5 L', price:34.90 },
       { category:'Vinhos', name:'Vinhos Linha I', price:22.90 },
@@ -713,6 +794,7 @@
       { category:'Vinhos', name:'Vinhos Meisterwein', price:22.20 },
       { category:'Vinhos', name:'Vinho Reservado Moscato', price:29.00 },
       { category:'Vinhos', name:'Vinho Reserva Tannat', price:42.00 },
+      { category:'Vinhos', name:'Vinho Orgânico', price:35.00 },
       { category:'Vinhos', name:'Vinho Prime', price:65.00 },
       { category:'Vinhos', name:'Vinhos Tinto 4,6 L', price:69.80 },
       { category:'Vinhos', name:'Vinho Branco 4,6 L', price:64.70 },
@@ -720,8 +802,11 @@
       { category:'Vinhos', name:'Vinhos Reservados Cabernet / Merlot', price:32.00 },
       { category:'Vinhos', name:'Vinhos Reservas Chardonnay / Blanc', price:42.00 },
 
+      { category:'Espumantes', name:'Espumante Brut', price:93.80 },
       { category:'Espumantes', name:'Espumante Asti Branca', price:38.00 },
       { category:'Espumantes', name:'Espumante Asti Rosé', price:39.00 },
+      { category:'Espumantes', name:'Espumante Charmat', price:43.00 },
+      { category:'Espumantes', name:'Espumante 375 ml', price:22.00 },
 
       { category:'Especiais', name:'Mistela', price:90.80 },
       { category:'Especiais', name:'Licoroso', price:78.00 },
@@ -780,7 +865,7 @@
         const grid = document.querySelector('#step3 .choice-grid');
         const err = document.createElement('div');
         err.className = 'field-error';
-        err.textContent = 'Escolha uma base para o presente.';
+        err.textContent = 'Escolha uma opção para continuar.';
         grid.insertAdjacentElement('afterend', err);
         grid.scrollIntoView({behavior:'smooth', block:'center'});
         return false;
@@ -823,26 +908,47 @@
     homeBtn.addEventListener('click',()=>show('home'));
 
     nextBtn.addEventListener('click',()=>{
-      const idx = order.indexOf(current);
-      if(idx >= 0 && idx < order.length-1){
+      if(current === 'step1'){
         if(!validateGiftStep()) return;
-        show(order[idx+1]);
-      } else if(current === 'step5'){
+        show('step2');
+        return;
+      }
+
+      if(current === 'step2'){
+        if(!validateGiftStep()) return;
+        show('step3');
+        return;
+      }
+
+      if(current === 'step3'){
+        if(!validateGiftStep()) return;
+        show(baseKind === 'kit' ? 'step4' : 'step5');
+        return;
+      }
+
+      if(current === 'step4'){
+        show('step5');
+        return;
+      }
+
+      if(current === 'step5'){
         const date = document.getElementById('date').value || 'Não informada';
         const time = document.getElementById('time').value || 'Não informado';
         const occasion = document.querySelector('#step2 .choice.selected')?.innerText.trim() || 'Não informada';
         const message = document.getElementById('message').value.trim() || 'Sem mensagem';
         const delivery = document.getElementById('delivery').value;
         const total = basePrice + [...items.values()].reduce((a,b)=>a+b,0);
-        const itemList = [...items.keys()].length ? [...items.keys()].join(', ') : 'Nenhum item';
+        const itemList = [...items.keys()].length ? [...items.keys()].join(', ') : 'Nenhum item adicional';
+        const ingredientsLine = baseIngredients ? `
+Ingredientes: ${baseIngredients}` : '';
 
-        const text = `Olá! Montei um presente pelo site do Empório São Marcos.
+        const text = `Olá! Montei um pedido pelo site do Empório São Marcos.
 
 Data: ${date}
 Horário: ${time}
 Ocasião: ${occasion}
-Base: ${baseName || 'Não escolhida'}
-Itens: ${itemList}
+Opção: ${baseName || 'Não escolhida'}${ingredientsLine}
+Itens adicionais: ${itemList}
 Mensagem do cartão: ${message}
 Recebimento: ${delivery}
 Total estimado: ${money(total)}`;
@@ -852,11 +958,16 @@ Total estimado: ${money(total)}`;
     });
 
     backBtn.addEventListener('click',()=>{
-      const idx = order.indexOf(current);
-      if(idx > 0){
-        show(order[idx-1]);
-      } else {
+      if(current === 'step1'){
         show('home');
+      } else if(current === 'step2'){
+        show('step1');
+      } else if(current === 'step3'){
+        show('step2');
+      } else if(current === 'step4'){
+        show('step3');
+      } else if(current === 'step5'){
+        show(baseKind === 'kit' ? 'step4' : 'step3');
       }
     });
 
@@ -873,6 +984,13 @@ Total estimado: ${money(total)}`;
       btn.addEventListener('click',()=>{
         baseName = btn.dataset.base;
         basePrice = Number(btn.dataset.price);
+        baseKind = btn.dataset.kind || '';
+        baseIngredients = btn.dataset.ingredients || '';
+
+        if(baseKind !== 'kit'){
+          items.clear();
+          renderProducts();
+        }
       });
     });
 
@@ -949,13 +1067,20 @@ Total estimado: ${money(total)}`;
       ).join('');
 
       const total = basePrice + [...items.values()].reduce((a,b)=>a+b,0);
+      const ingredients = baseIngredients
+        ? `<div class="mini" style="margin:8px 0 10px;line-height:1.45"><strong style="color:var(--text)">Ingredientes:</strong> ${baseIngredients}</div>`
+        : '';
+      const kitItems = baseKind === 'kit'
+        ? (itemRows || '<div class="mini">Nenhum item adicionado ainda.</div>')
+        : '';
 
       summary.innerHTML = `
         <div class="summary-row">
-          <span>${baseName || 'Base do presente'}</span>
+          <span>${baseName || 'Opção escolhida'}</span>
           <strong>${money(basePrice)}</strong>
         </div>
-        ${itemRows || '<div class="mini">Nenhum item adicionado ainda.</div>'}
+        ${ingredients}
+        ${kitItems}
         <div class="summary-row total">
           <span>Total</span>
           <span>${money(total)}</span>
