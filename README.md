@@ -22,4 +22,10 @@ Não existe backend, banco de dados, autenticação, estoque ou pagamento online
 
 A estrutura atual continua compatível com hospedagem estática. Nenhuma publicação é realizada ao editar os arquivos localmente.
 
-Veja [DIAGNOSTICO.md](DIAGNOSTICO.md) para as prioridades de melhoria e limitações.
+## Documentação
+
+Veja [docs/README.md](docs/README.md) para funcionalidades, detalhes da implementação e o guia de manutenção e publicação.
+
+## Produção
+
+O site é publicado pelo GitHub Pages a partir da raiz da branch `main`, no domínio [emporiosm.com.br](https://emporiosm.com.br/). Um push nessa branch dispara uma nova publicação.
