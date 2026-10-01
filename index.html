@@ -68,13 +68,17 @@
     }
 
     .brand{
-      font-size:1.08rem;
-      font-weight:800;
-      letter-spacing:-.02em;
-      line-height:1.2;
+      min-width:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(1.55rem,6vw,2rem);
+      font-weight:500;
+      color:var(--accent);
+      letter-spacing:-.04em;
+      line-height:1.12;
     }
 
     .brand small{
+      font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
       display:block;
       margin-top:4px;
       max-width:360px;
@@ -86,6 +90,7 @@
     }
 
     .ghost{
+      flex-shrink:0;
       border:0;
       background:transparent;
       color:var(--muted);
@@ -742,10 +747,11 @@
     .shop-filter{white-space:nowrap;border:1px solid var(--line);background:white;border-radius:24px;padding:10px 16px;font-size:.9rem}
     .shop-filter[aria-pressed="true"]{background:var(--accent);color:white;border-color:var(--accent)}
     .shop-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-    .shop-card{background:white;border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px}
+    .shop-card{min-width:0;overflow-wrap:anywhere;background:white;border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px}
     .shop-card h3{font-size:1rem;line-height:1.4;margin:0;flex:1}
     .shop-card small{color:var(--muted)}
-    .shop-card .add{width:100%;min-width:0}
+    .shop-card .add{width:100%;min-width:0;white-space:normal;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 6px;font-size:.92rem;line-height:1.25;min-height:62px}
+    .shop-add-count{font-size:.74rem;font-weight:500;color:var(--muted);min-height:1.25em}
     .shop-bag-bar .bottom-inner{justify-content:space-between}
     .shop-bag-info{display:flex;flex-direction:column;gap:3px;font-size:.9rem}
     .shop-bag-info strong{font-size:1.05rem}
@@ -1701,7 +1707,7 @@
       const query = normalizeSearch(document.getElementById('shopSearch').value.trim());
       const matches = shopCatalog.map((p,id)=>({...p,id})).filter(p=>(shopCategory==='Todos'||p.category===shopCategory)&&normalizeSearch(p.name+' '+p.category).includes(query));
       document.getElementById('shopCount').textContent = `${matches.length} produtos encontrados`;
-      document.getElementById('shopProducts').innerHTML = matches.length ? matches.map(p=>`<article class="shop-card"><small>${escapeHTML(p.category)}</small><h3>${escapeHTML(p.name)}</h3><strong>${money(p.price)}</strong><button class="add" type="button" data-shop-add="${p.id}" aria-label="Adicionar ${escapeHTML(p.name)} à sacola">${shopBag.has(p.id) ? `Adicionar + · ${shopBag.get(p.id)} na sacola` : 'Adicionar +'}</button></article>`).join('') : '<p class="shop-status">Nenhum produto encontrado. Experimente outro nome ou categoria.</p>';
+      document.getElementById('shopProducts').innerHTML = matches.length ? matches.map(p=>`<article class="shop-card"><small>${escapeHTML(p.category)}</small><h3>${escapeHTML(p.name)}</h3><strong>${money(p.price)}</strong><button class="add" type="button" data-shop-add="${p.id}" aria-label="Adicionar ${escapeHTML(p.name)} à sacola"><span>Adicionar +</span><span class="shop-add-count">${shopBag.has(p.id) ? `${shopBag.get(p.id)} na sacola` : '&nbsp;'}</span></button></article>`).join('') : '<p class="shop-status">Nenhum produto encontrado. Experimente outro nome ou categoria.</p>';
     }
     function renderBag(){
       let total=0, count=0;
@@ -1715,7 +1721,7 @@
       document.getElementById('shopBagTotal').textContent=money(total/100);
       document.querySelectorAll('[data-shop-add]').forEach(button=>{
         const qty=shopBag.get(Number(button.dataset.shopAdd))||0;
-        button.textContent=qty ? `Adicionar + · ${qty} na sacola` : 'Adicionar +';
+        button.querySelector('.shop-add-count').textContent=qty ? `${qty} na sacola` : '\u00a0';
         button.disabled=qty>=99;
       });
       document.getElementById('cartStatus').textContent=count ? `${count} ${count===1?'item':'itens'} na sacola.` : 'Nenhum item na sacola.';
