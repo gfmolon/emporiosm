@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="description" content="Explore os produtos do Empório São Marcos, monte sua sacola ou um presente e solicite seu pedido pelo WhatsApp.">
   <meta name="theme-color" content="#6b4f3a">
   <title>Empório São Marcos | Vinhos, sucos e produtos coloniais</title>
 
@@ -734,6 +735,28 @@
       font-weight:750;
     }
 
+    :focus-visible{outline:3px solid #ad7946;outline-offset:4px}
+    .shop-banner{background:var(--accent-soft);border-radius:24px;padding:24px;margin:24px 0}
+    .shop-banner p{margin:8px 0 0;line-height:1.5;color:var(--muted)}
+    .shop-filters{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 12px;margin:16px 0}
+    .shop-filter{white-space:nowrap;border:1px solid var(--line);background:white;border-radius:24px;padding:10px 16px;font-size:.9rem}
+    .shop-filter[aria-pressed="true"]{background:var(--accent);color:white;border-color:var(--accent)}
+    .shop-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .shop-card{background:white;border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px}
+    .shop-card h3{font-size:1rem;line-height:1.4;margin:0;flex:1}
+    .shop-card small{color:var(--muted)}
+    .shop-card .add{width:100%;min-width:0}
+    .shop-cart{margin-top:28px;border:1px solid var(--line);border-radius:20px;background:white;padding:20px}
+    .shop-cart h3{margin:0 0 16px}
+    .cart-row{padding:14px 0;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center;justify-content:space-between}
+    .cart-row span{font-size:.95rem;line-height:1.5}
+    .cart-controls{display:flex;align-items:center;gap:10px;flex-shrink:0}
+    .cart-controls button{width:34px;height:34px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+    .shop-total{display:flex;justify-content:space-between;margin:20px 0;font-weight:800}
+    .shop-checkout{width:100%;border:0;border-radius:14px;background:var(--accent);color:white;padding:16px;font-weight:700}
+    .shop-checkout:disabled{opacity:.45;cursor:default}
+    .shop-status{color:var(--muted);font-size:.9rem;line-height:1.5;margin:12px 0}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.section{animation:none}}
     [hidden]{display:none !important}
 
     @media (max-width:520px){
@@ -765,12 +788,13 @@
 
     <section id="home" class="section active">
       <div class="hero">
-        <h1>O que você quer fazer?</h1>
-        <p class="lead">Escolha uma opção.</p>
+        <h1>Sabores da nossa terra.</h1>
+        <p class="lead">Vinhos, presentes e bons momentos. O Empório mais perto de você.</p>
       </div>
 
       <div class="actions">
-        <button class="action-card primary" data-go="step1" type="button">
+        <button class="action-card primary" data-go="shop" type="button"><strong>Explorar a loja</strong><span>Escolha seus produtos e monte sua sacola.</span></button>
+        <button class="action-card" data-go="step1" type="button">
           <strong>Montar um presente</strong>
           <span>Monte um kit ou escolha uma tábua de frios.</span>
         </button>
@@ -795,6 +819,24 @@
         <a href="https://drive.google.com/file/d/1CmiSg8iIJxm9bJl0iaKjUhT24J5eTtGw/view" target="_blank" rel="noopener">
           Ver catálogo de vinhos ↗
         </a>
+      </div>
+    </section>
+
+    <section id="shop" class="section" aria-labelledby="shopTitle">
+      <div class="eyebrow">A loja na palma da mão</div>
+      <h2 id="shopTitle" tabindex="-1">Escolha seus favoritos.</h2>
+      <div class="shop-banner"><strong>Da serra para a sua mesa</strong><p>Monte a sacola e combine seu pedido com o Empório pelo WhatsApp. Valores e disponibilidade sujeitos à confirmação.</p></div>
+      <div class="field"><label for="shopSearch">Buscar produtos</label><input id="shopSearch" type="search" placeholder="Busque por vinho, suco, espumante…"></div>
+      <div id="shopFilters" class="shop-filters" aria-label="Categorias de produtos"></div>
+      <p id="shopCount" class="shop-status" role="status"></p>
+      <div id="shopProducts" class="shop-grid"></div>
+      <div class="shop-cart" id="shopCart"><h3>Sua sacola</h3><div id="cartItems"></div>
+        <div class="shop-total"><span>Total estimado</span><span id="cartTotal"></span></div>
+        <div class="field"><label for="shopDelivery">Como quer receber?</label><select id="shopDelivery"><option>Retirada no Empório</option><option>Entrega — consultar frete e disponibilidade</option></select></div>
+        <div class="field"><label for="shopNotes">Observações (opcional)</label><textarea id="shopNotes" rows="2" maxlength="1000" placeholder="Preferências, variações ou dúvidas sobre os produtos"></textarea></div>
+        <button id="shopCheckout" class="shop-checkout" type="button" disabled>Solicitar pedido pelo WhatsApp</button>
+        <p class="shop-status">O pedido será enviado por você no WhatsApp. A loja confirma os produtos, o frete e o pagamento.</p>
+        <p id="cartStatus" class="shop-status" role="status" aria-live="polite"></p>
       </div>
     </section>
 
@@ -1387,11 +1429,15 @@
         nextBtn.textContent = 'Continuar';
       }
 
+      const heading = document.getElementById(id).querySelector('h1,h2');
+      if(heading){ heading.tabIndex = -1; heading.focus({preventScroll:true}); }
       window.scrollTo({top:0,behavior:'smooth'});
     }
 
     function validateCurrentStep(){
       clearErrors(document.getElementById(current));
+
+      if(current === 'step1' && !validDate(document.getElementById('date'))) return false;
 
       if(current === 'step3' && !giftType){
         return showGridError(document.getElementById('typeGrid'),'Escolha entre montar um kit ou pedir uma tábua de frios.');
@@ -1537,8 +1583,7 @@
 
     function openWhatsApp(text){
       const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
-      const opened = window.open(url,'_blank','noopener');
-      if(!opened) window.location.href = url;
+      window.location.assign(url);
     }
 
     const contactWhatsApp = document.getElementById('contactWhatsApp');
@@ -1558,7 +1603,8 @@
         const dateEl = document.getElementById('quoteDate');
         const contactEl = document.getElementById('quoteContact');
 
-        if(!qtyEl.value || Number(qtyEl.value) < 1) return showError(qtyEl,'Informe uma quantidade válida.');
+        if(!validDate(dateEl)) return;
+        if(!Number.isInteger(Number(qtyEl.value)) || Number(qtyEl.value) < 1) return showError(qtyEl,'Informe uma quantidade válida.');
         if(!contactEl.value.trim()) return showError(contactEl,'Informe um nome e telefone para contato.');
 
         const qty = qtyEl.value;
@@ -1587,7 +1633,8 @@
           return showGridError(document.querySelector('.visit-multi'),'Escolha pelo menos uma opção para a visita.');
         }
 
-        if(!peopleEl.value || Number(peopleEl.value) < 1) return showError(peopleEl,'Informe quantas pessoas participarão.');
+        if(!validDate(dateEl)) return;
+        if(!Number.isInteger(Number(peopleEl.value)) || Number(peopleEl.value) < 1) return showError(peopleEl,'Informe quantas pessoas participarão.');
         if(!contactEl.value.trim()) return showError(contactEl,'Informe um nome e telefone para contato.');
 
         const date = dateEl.value || 'Não informada';
@@ -1628,6 +1675,61 @@
         hoursArrow.textContent = open ? '−' : '+';
       });
     }
+
+
+    function validDate(el){
+      if(el.value && el.value < todayISO()) return showError(el,'Escolha uma data a partir de hoje.');
+      return true;
+    }
+    const shopCatalog = [...PRODUCTS, ...BOARD_OPTIONS.map(p=>({...p, category:'Tábuas de frios'}))];
+    const shopBag = new Map();
+    let shopCategory = 'Todos';
+    const categories = ['Todos', ...new Set(shopCatalog.map(p=>p.category))];
+    const escapeHTML = value => String(value).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const normalizeSearch = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    function renderShop(){
+      document.getElementById('shopFilters').innerHTML = categories.map((c,i)=>`<button class="shop-filter" type="button" data-category="${i}" aria-pressed="${c===shopCategory}">${escapeHTML(c)}</button>`).join('');
+      const query = normalizeSearch(document.getElementById('shopSearch').value.trim());
+      const matches = shopCatalog.map((p,id)=>({...p,id})).filter(p=>(shopCategory==='Todos'||p.category===shopCategory)&&normalizeSearch(p.name+' '+p.category).includes(query));
+      document.getElementById('shopCount').textContent = `${matches.length} produtos encontrados`;
+      document.getElementById('shopProducts').innerHTML = matches.length ? matches.map(p=>`<article class="shop-card"><small>${escapeHTML(p.category)}</small><h3>${escapeHTML(p.name)}</h3><strong>${money(p.price)}</strong><button class="add" type="button" data-shop-add="${p.id}" aria-label="Adicionar ${escapeHTML(p.name)} à sacola">Adicionar +</button></article>`).join('') : '<p class="shop-status">Nenhum produto encontrado. Experimente outro nome ou categoria.</p>';
+    }
+    function renderBag(){
+      let total=0, count=0;
+      document.getElementById('cartItems').innerHTML = [...shopBag].map(([id,qty])=>{
+        const p=shopCatalog[id]; total+=Math.round(p.price*100)*qty; count+=qty;
+        return `<div class="cart-row"><span>${escapeHTML(p.name)}<br><strong>${money(p.price*qty)}</strong></span><div class="cart-controls"><button type="button" data-bag-id="${id}" data-delta="-1" aria-label="Remover uma unidade de ${escapeHTML(p.name)}">−</button><span>${qty}</span><button type="button" data-bag-id="${id}" data-delta="1" aria-label="Adicionar uma unidade de ${escapeHTML(p.name)}" ${qty>=99?'disabled':''}>+</button></div></div>`;
+      }).join('') || '<p class="shop-status">Sua sacola está vazia. Adicione seus favoritos acima.</p>';
+      document.getElementById('cartTotal').textContent=money(total/100);
+      document.getElementById('shopCheckout').disabled=!count;
+      document.getElementById('cartStatus').textContent=count ? `${count} ${count===1?'item':'itens'} na sacola.` : 'Nenhum item na sacola.';
+    }
+    document.getElementById('shopSearch').addEventListener('input',renderShop);
+    document.getElementById('shopFilters').addEventListener('click',e=>{
+      const b=e.target.closest('[data-category]'); if(!b)return;
+      shopCategory=categories[Number(b.dataset.category)]; renderShop();
+      document.querySelector(`[data-category="${b.dataset.category}"]`).focus();
+    });
+    document.getElementById('shopProducts').addEventListener('click',e=>{
+      const b=e.target.closest('[data-shop-add]'); if(!b)return;
+      const id=Number(b.dataset.shopAdd); shopBag.set(id,Math.min(99,(shopBag.get(id)||0)+1)); renderBag();
+    });
+    document.getElementById('cartItems').addEventListener('click',e=>{
+      const b=e.target.closest('[data-bag-id]'); if(!b)return;
+      const id=Number(b.dataset.bagId), qty=(shopBag.get(id)||0)+Number(b.dataset.delta);
+      if(qty<=0)shopBag.delete(id); else shopBag.set(id,Math.min(99,qty));
+      renderBag();
+      const next=document.querySelector(`[data-bag-id="${id}"][data-delta="${b.dataset.delta}"]`);
+      (next||document.getElementById('shopSearch')).focus();
+    });
+    document.getElementById('shopCheckout').addEventListener('click',()=>{
+      if(!shopBag.size)return;
+      let cents=0;
+      const lines=[...shopBag].map(([id,qty])=>{const p=shopCatalog[id]; cents+=Math.round(p.price*100)*qty;return `${qty} × ${p.name}: ${money(p.price*qty)}`;});
+      openWhatsApp(`Olá! Gostaria de solicitar um pedido na loja do Empório São Marcos.\n\n${lines.join('\n')}\n\nTotal estimado: ${money(cents/100)}\nRecebimento: ${document.getElementById('shopDelivery').value}\nObservações: ${document.getElementById('shopNotes').value.trim()||'Sem observações'}\n\nPodem confirmar disponibilidade, variações, frete e pagamento?`);
+    });
+    renderShop();
+    renderBag();
 
     renderProducts();
     renderBoards();
