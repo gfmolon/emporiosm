@@ -746,6 +746,12 @@
     .shop-card h3{font-size:1rem;line-height:1.4;margin:0;flex:1}
     .shop-card small{color:var(--muted)}
     .shop-card .add{width:100%;min-width:0}
+    .shop-bag-bar .bottom-inner{justify-content:space-between}
+    .shop-bag-info{display:flex;flex-direction:column;gap:3px;font-size:.9rem}
+    .shop-bag-info strong{font-size:1.05rem}
+    .shop-bag-link{border:0;border-radius:14px;background:var(--accent);color:white;padding:14px 18px;font-weight:750;min-height:48px}
+    .shop-feedback{position:fixed;bottom:calc(94px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100% - 32px);padding:12px 18px;border-radius:14px;background:var(--text);color:white;font-size:.9rem;line-height:1.4;box-shadow:0 4px 20px #211f1c20;z-index:21;pointer-events:none}
+    .shop-feedback:empty{display:none}
     .shop-cart{margin-top:28px;border:1px solid var(--line);border-radius:20px;background:white;padding:20px}
     .shop-cart h3{margin:0 0 16px}
     .cart-row{padding:14px 0;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center;justify-content:space-between}
@@ -830,7 +836,9 @@
       <div id="shopFilters" class="shop-filters" aria-label="Categorias de produtos"></div>
       <p id="shopCount" class="shop-status" role="status"></p>
       <div id="shopProducts" class="shop-grid"></div>
-      <div class="shop-cart" id="shopCart"><h3>Sua sacola</h3><div id="cartItems"></div>
+      <div id="shopFeedback" class="shop-feedback" role="status" aria-live="polite" aria-atomic="true"></div>
+      <div class="bottom shop-bag-bar"><div class="bottom-inner"><div class="shop-bag-info"><span id="shopBagCount">Sacola vazia</span><strong id="shopBagTotal">R$ 0,00</strong></div><button id="shopViewBag" class="shop-bag-link" type="button">Ver sacola</button></div></div>
+      <div class="shop-cart" id="shopCart"><h3 id="shopCartTitle" tabindex="-1">Sua sacola</h3><div id="cartItems"></div>
         <div class="shop-total"><span>Total estimado</span><span id="cartTotal"></span></div>
         <div class="field"><label for="shopDelivery">Como quer receber?</label><select id="shopDelivery"><option>Retirada no Empório</option><option>Entrega — consultar frete e disponibilidade</option></select></div>
         <div class="field"><label for="shopNotes">Observações (opcional)</label><textarea id="shopNotes" rows="2" maxlength="1000" placeholder="Preferências, variações ou dúvidas sobre os produtos"></textarea></div>
@@ -1430,6 +1438,7 @@
       }
 
       const heading = document.getElementById(id).querySelector('h1,h2');
+      document.getElementById('shopFeedback').textContent = '';
       if(heading){ heading.tabIndex = -1; heading.focus({preventScroll:true}); }
       window.scrollTo({top:0,behavior:'smooth'});
     }
@@ -1692,7 +1701,7 @@
       const query = normalizeSearch(document.getElementById('shopSearch').value.trim());
       const matches = shopCatalog.map((p,id)=>({...p,id})).filter(p=>(shopCategory==='Todos'||p.category===shopCategory)&&normalizeSearch(p.name+' '+p.category).includes(query));
       document.getElementById('shopCount').textContent = `${matches.length} produtos encontrados`;
-      document.getElementById('shopProducts').innerHTML = matches.length ? matches.map(p=>`<article class="shop-card"><small>${escapeHTML(p.category)}</small><h3>${escapeHTML(p.name)}</h3><strong>${money(p.price)}</strong><button class="add" type="button" data-shop-add="${p.id}" aria-label="Adicionar ${escapeHTML(p.name)} à sacola">Adicionar +</button></article>`).join('') : '<p class="shop-status">Nenhum produto encontrado. Experimente outro nome ou categoria.</p>';
+      document.getElementById('shopProducts').innerHTML = matches.length ? matches.map(p=>`<article class="shop-card"><small>${escapeHTML(p.category)}</small><h3>${escapeHTML(p.name)}</h3><strong>${money(p.price)}</strong><button class="add" type="button" data-shop-add="${p.id}" aria-label="Adicionar ${escapeHTML(p.name)} à sacola">${shopBag.has(p.id) ? `Adicionar + · ${shopBag.get(p.id)} na sacola` : 'Adicionar +'}</button></article>`).join('') : '<p class="shop-status">Nenhum produto encontrado. Experimente outro nome ou categoria.</p>';
     }
     function renderBag(){
       let total=0, count=0;
@@ -1702,8 +1711,26 @@
       }).join('') || '<p class="shop-status">Sua sacola está vazia. Adicione seus favoritos acima.</p>';
       document.getElementById('cartTotal').textContent=money(total/100);
       document.getElementById('shopCheckout').disabled=!count;
+      document.getElementById('shopBagCount').textContent=count ? `${count} ${count===1?'item':'itens'} na sacola` : 'Sacola vazia';
+      document.getElementById('shopBagTotal').textContent=money(total/100);
+      document.querySelectorAll('[data-shop-add]').forEach(button=>{
+        const qty=shopBag.get(Number(button.dataset.shopAdd))||0;
+        button.textContent=qty ? `Adicionar + · ${qty} na sacola` : 'Adicionar +';
+        button.disabled=qty>=99;
+      });
       document.getElementById('cartStatus').textContent=count ? `${count} ${count===1?'item':'itens'} na sacola.` : 'Nenhum item na sacola.';
     }
+    let shopFeedbackTimer;
+    function notifyShop(message){
+      clearTimeout(shopFeedbackTimer);
+      document.getElementById('shopFeedback').textContent=message;
+      shopFeedbackTimer=setTimeout(()=>{document.getElementById('shopFeedback').textContent='';},2600);
+    }
+    document.getElementById('shopViewBag').addEventListener('click',()=>{
+      const heading=document.getElementById('shopCartTitle');
+      heading.focus({preventScroll:true});
+      heading.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+    });
     document.getElementById('shopSearch').addEventListener('input',renderShop);
     document.getElementById('shopFilters').addEventListener('click',e=>{
       const b=e.target.closest('[data-category]'); if(!b)return;
@@ -1712,7 +1739,11 @@
     });
     document.getElementById('shopProducts').addEventListener('click',e=>{
       const b=e.target.closest('[data-shop-add]'); if(!b)return;
-      const id=Number(b.dataset.shopAdd); shopBag.set(id,Math.min(99,(shopBag.get(id)||0)+1)); renderBag();
+      const id=Number(b.dataset.shopAdd);
+      if((shopBag.get(id)||0)>=99)return;
+      shopBag.set(id,(shopBag.get(id)||0)+1);
+      renderBag();
+      notifyShop(`${shopCatalog[id].name} adicionado à sacola.`);
     });
     document.getElementById('cartItems').addEventListener('click',e=>{
       const b=e.target.closest('[data-bag-id]'); if(!b)return;
