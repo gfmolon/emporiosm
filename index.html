@@ -69,12 +69,12 @@
 
     .brand{
       min-width:0;
-      font-family:Georgia,"Times New Roman",serif;
-      font-size:clamp(1.55rem,6vw,2rem);
-      font-weight:500;
+      font-family:"Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+      font-size:clamp(1.6rem,6vw,2.1rem);
+      font-weight:700;
       color:var(--accent);
-      letter-spacing:-.04em;
-      line-height:1.12;
+      letter-spacing:-.025em;
+      line-height:1.15;
     }
 
     .brand small{
@@ -750,8 +750,10 @@
     .shop-card{min-width:0;overflow-wrap:anywhere;background:white;border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px}
     .shop-card h3{font-size:1rem;line-height:1.4;margin:0;flex:1}
     .shop-card small{color:var(--muted)}
-    .shop-card .add{width:100%;min-width:0;white-space:normal;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 6px;font-size:.92rem;line-height:1.25;min-height:62px}
-    .shop-add-count{font-size:.74rem;font-weight:500;color:var(--muted);min-height:1.25em}
+    .shop-card-action{position:relative;padding-bottom:20px}
+    .shop-card .add{width:100%;min-width:0;white-space:normal;padding:12px 6px;font-size:.92rem;line-height:1.25;min-height:44px}
+    .shop-add-count{position:absolute;bottom:0;left:0;right:0;text-align:center;font-size:.74rem;font-weight:500;line-height:1.25;color:var(--muted)}
+    .shop-add-count:empty{display:none}
     .shop-bag-bar .bottom-inner{justify-content:space-between}
     .shop-bag-info{display:flex;flex-direction:column;gap:3px;font-size:.9rem}
     .shop-bag-info strong{font-size:1.05rem}
@@ -1707,7 +1709,7 @@
       const query = normalizeSearch(document.getElementById('shopSearch').value.trim());
       const matches = shopCatalog.map((p,id)=>({...p,id})).filter(p=>(shopCategory==='Todos'||p.category===shopCategory)&&normalizeSearch(p.name+' '+p.category).includes(query));
       document.getElementById('shopCount').textContent = `${matches.length} produtos encontrados`;
-      document.getElementById('shopProducts').innerHTML = matches.length ? matches.map(p=>`<article class="shop-card"><small>${escapeHTML(p.category)}</small><h3>${escapeHTML(p.name)}</h3><strong>${money(p.price)}</strong><button class="add" type="button" data-shop-add="${p.id}" aria-label="Adicionar ${escapeHTML(p.name)} à sacola"><span>Adicionar +</span><span class="shop-add-count">${shopBag.has(p.id) ? `${shopBag.get(p.id)} na sacola` : '&nbsp;'}</span></button></article>`).join('') : '<p class="shop-status">Nenhum produto encontrado. Experimente outro nome ou categoria.</p>';
+      document.getElementById('shopProducts').innerHTML = matches.length ? matches.map(p=>`<article class="shop-card"><small>${escapeHTML(p.category)}</small><h3>${escapeHTML(p.name)}</h3><strong>${money(p.price)}</strong><div class="shop-card-action"><button class="add" type="button" data-shop-add="${p.id}" aria-label="Adicionar ${escapeHTML(p.name)} à sacola">Adicionar +</button><span class="shop-add-count">${shopBag.has(p.id) ? `${shopBag.get(p.id)} na sacola` : ''}</span></div></article>`).join('') : '<p class="shop-status">Nenhum produto encontrado. Experimente outro nome ou categoria.</p>';
     }
     function renderBag(){
       let total=0, count=0;
@@ -1721,7 +1723,7 @@
       document.getElementById('shopBagTotal').textContent=money(total/100);
       document.querySelectorAll('[data-shop-add]').forEach(button=>{
         const qty=shopBag.get(Number(button.dataset.shopAdd))||0;
-        button.querySelector('.shop-add-count').textContent=qty ? `${qty} na sacola` : '\u00a0';
+        button.parentElement.querySelector('.shop-add-count').textContent=qty ? `${qty} na sacola` : '';
         button.disabled=qty>=99;
       });
       document.getElementById('cartStatus').textContent=count ? `${count} ${count===1?'item':'itens'} na sacola.` : 'Nenhum item na sacola.';
