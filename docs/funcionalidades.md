@@ -2,7 +2,7 @@
 
 ## Início
 
-A tela inicial apresenta acesso à loja, montagem de presentes, cotação, visitas e contato. Há também um link para o catálogo de vinhos no Google Drive. O cabeçalho usa uma fonte serifada encorpada e uma descrição curta. O botão Início aparece nas demais telas.
+A tela inicial apresenta três opções principais: Conheça nossos produtos, Montar um presente e Agendar uma visita. Abaixo, links menores dão acesso à cotação, contato e horários e ao catálogo de vinhos no Google Drive. O cabeçalho usa uma fonte serifada encorpada e uma descrição curta. O botão Início aparece nas demais telas.
 
 ## Loja e sacola
 

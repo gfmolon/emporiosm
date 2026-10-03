@@ -663,16 +663,31 @@
 
     .home-extra{
       margin-top:18px;
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:center;
+      gap:4px 16px;
       text-align:center;
     }
 
+    .home-extra button,
     .home-extra a,
     .home-extra a:visited{
       color:var(--accent);
       -webkit-text-fill-color:var(--accent);
       text-decoration:none;
-      font-weight:800;
-      font-size:.98rem;
+      font-weight:600;
+      font-size:.9rem;
+      min-height:44px;
+      display:inline-flex;
+      align-items:center;
+      padding:8px 0;
+    }
+
+    .home-extra button{
+      border:0;
+      background:transparent;
+      font-family:inherit;
     }
 
     .contact-meta{
@@ -791,8 +806,6 @@
     #home .actions{margin-top:18px;gap:10px}
     #home .action-card{padding:16px 18px}
     #home .action-card span{font-size:.92rem}
-    #home .action-card.compact{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;padding:14px 18px}
-    #home .compact strong{margin:0;font-size:1rem}
     .ghost{min-height:44px;padding:10px 0 10px 12px}
     .optional-details{margin-top:18px;border-top:1px solid var(--line);padding-top:4px}
     .optional-details summary{cursor:pointer;padding:12px 0;color:var(--muted);font-size:.92rem;min-height:44px}
@@ -845,26 +858,21 @@
       </div>
 
       <div class="actions">
-        <button class="action-card primary" data-go="shop" type="button"><strong>Conheça nossos produtos</strong><span>Produtos e sacola pelo WhatsApp.</span></button>
+        <button class="action-card primary" data-go="shop" type="button"><strong>Conheça nossos produtos</strong><span>Escolha e peça pelo WhatsApp.</span></button>
         <button class="action-card" data-go="step1" type="button">
           <strong>Montar um presente</strong>
           <span>Kits e tábuas de frios.</span>
         </button>
 
-        <button class="action-card compact" data-go="quote" type="button">
-          <strong>Pedir uma cotação</strong><span aria-hidden="true">→</span>
-        </button>
-
-        <button class="action-card compact" data-go="visit" type="button">
-          <strong>Agendar uma visita</strong><span aria-hidden="true">→</span>
-        </button>
-
-        <button class="action-card compact" data-go="contact" type="button">
-          <strong>Contato e horários</strong><span aria-hidden="true">→</span>
+        <button class="action-card" data-go="visit" type="button">
+          <strong>Agendar uma visita</strong>
+          <span>Conheça o Empório e suas experiências.</span>
         </button>
       </div>
 
       <div class="home-extra">
+        <button data-go="quote" type="button">Pedir uma cotação</button>
+        <button data-go="contact" type="button">Contato e horários</button>
         <a href="https://drive.google.com/file/d/1CmiSg8iIJxm9bJl0iaKjUhT24J5eTtGw/view" target="_blank" rel="noopener">
           Ver catálogo de vinhos ↗
         </a>
