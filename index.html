@@ -1179,19 +1179,19 @@
     const backBtn = document.getElementById('backBtn');
     const nextBtn = document.getElementById('nextBtn');
 
-    let current = 'home';
-    let giftType = '';
-    let occasionName = '';
-    let noMessage = false;
-    let selectedBoard = null;
-    let boardQuantity = 1;
-    const items = new Map();
+    let currentSection = 'home';
+    let selectedGiftType = '';
+    let selectedOccasion = '';
+    let isCardMessageDisabled = false;
+    let selectedBoardOption = null;
+    let selectedBoardQuantity = 1;
+    const giftItems = new Map();
 
-    const order = ['step1','step2','step3','step4','step5'];
+    const giftStepOrder = ['step1','step2','step3','step4','step5'];
 
     // ============================================================
-    // CONFIGURAÇÃO RÁPIDA
-    // Altere aqui os valores do kit, tábuas e produtos.
+    // QUICK CONFIGURATION
+    // Update gift kit, charcuterie board, and product pricing here.
     // ============================================================
 
     const KIT_BASE_PRICE = 15.00;
@@ -1262,27 +1262,27 @@
       { category:'Maletas e presentes', name:'Maleta Vinho Sinuelo + 1 taça', price:55.00 }
     ];
 
-    const productsList = document.getElementById('productsList');
-    const boardList = document.getElementById('boardList');
-    const boardQtyEl = document.getElementById('boardQty');
-    const otherOccasionWrap = document.getElementById('otherOccasionWrap');
+    const giftProductsContainer = document.getElementById('productsList');
+    const giftBoardContainer = document.getElementById('boardList');
+    const boardQuantityDisplay = document.getElementById('boardQty');
+    const otherOccasionContainer = document.getElementById('otherOccasionWrap');
     const otherOccasionInput = document.getElementById('otherOccasion');
-    const messageEl = document.getElementById('message');
+    const cardMessageInput = document.getElementById('message');
     const noMessageBtn = document.getElementById('noMessageBtn');
 
-    function money(n){
+    function formatCurrency(n){
       return Number(n).toLocaleString('pt-BR',{
         style:'currency',
         currency:'BRL'
       });
     }
 
-    function clearErrors(scope = document){
+    function clearValidationErrors(scope = document){
       scope.querySelectorAll('.field-error').forEach(el=>el.remove());
       scope.querySelectorAll('.invalid').forEach(el=>el.classList.remove('invalid'));
     }
 
-    function showError(el, message){
+    function showFieldError(el, message){
       el.classList.add('invalid');
       const wrap = el.closest('.field') || el.parentElement;
       const err = document.createElement('div');
@@ -1294,7 +1294,7 @@
       return false;
     }
 
-    function showGridError(grid, message){
+    function showSelectionError(grid, message){
       const err = document.createElement('div');
       err.className = 'field-error';
       err.textContent = message;
@@ -1303,7 +1303,7 @@
       return false;
     }
 
-    function todayISO(){
+    function getTodayISO(){
       const d = new Date();
       const local = new Date(d.getTime() - d.getTimezoneOffset()*60000);
       return local.toISOString().slice(0,10);
@@ -1311,7 +1311,7 @@
 
     ['date','quoteDate','visitDate'].forEach(id=>{
       const el = document.getElementById(id);
-      if(el) el.min = todayISO();
+      if(el) el.min = getTodayISO();
     });
 
 
@@ -1322,7 +1322,7 @@
         const timeSelect = document.getElementById('time');
         if(dateInput) dateInput.value = '';
         if(timeSelect) timeSelect.value = '';
-        show('step2');
+        showSection('step2');
       });
     }
 
@@ -1339,26 +1339,26 @@
       });
     });
 
-    function getOccasion(){
-      if(!occasionName) return 'Sem ocasião informada';
-      if(occasionName !== 'Outro') return occasionName;
+    function getSelectedOccasion(){
+      if(!selectedOccasion) return 'Sem ocasião informada';
+      if(selectedOccasion !== 'Outro') return selectedOccasion;
       const detail = otherOccasionInput.value.trim();
       return detail ? `Outro: ${detail}` : 'Outro';
     }
 
-    function getMessage(){
-      if(noMessage) return 'Sem mensagem no cartão';
-      return messageEl.value.trim() || 'Sem mensagem no cartão';
+    function getCardMessage(){
+      if(isCardMessageDisabled) return 'Sem mensagem no cartão';
+      return cardMessageInput.value.trim() || 'Sem mensagem no cartão';
     }
 
-    function getTotal(){
-      if(giftType === 'board'){
-        return selectedBoard ? selectedBoard.price * boardQuantity : 0;
+    function calculateGiftTotal(){
+      if(selectedGiftType === 'board'){
+        return selectedBoardOption ? selectedBoardOption.price * selectedBoardQuantity : 0;
       }
-      return KIT_BASE_PRICE + [...items.values()].reduce((sum,price)=>sum+price,0);
+      return KIT_BASE_PRICE + [...giftItems.values()].reduce((sum,price)=>sum+price,0);
     }
 
-    function renderProducts(){
+    function renderGiftProducts(){
       const grouped = new Map();
 
       PRODUCTS.forEach(product=>{
@@ -1366,14 +1366,14 @@
         grouped.get(product.category).push(product);
       });
 
-      productsList.innerHTML = [...grouped.entries()].map(([category,products])=>{
+      giftProductsContainer.innerHTML = [...grouped.entries()].map(([category,products])=>{
         const rows = products.map(product=>{
-          const selected = items.has(product.name);
+          const selected = giftItems.has(product.name);
           return `
             <article class="product">
               <div class="product-body">
                 <div class="product-name">${product.name}</div>
-                <div class="price">${money(product.price)}</div>
+                <div class="price">${formatCurrency(product.price)}</div>
               </div>
               <button
                 class="add${selected ? ' added' : ''}"
@@ -1394,95 +1394,95 @@
       }).join('');
     }
 
-    function renderBoards(){
-      boardList.innerHTML = BOARD_OPTIONS.map((board,index)=>{
-        const selected = selectedBoard && selectedBoard.name === board.name;
+    function renderGiftBoards(){
+      giftBoardContainer.innerHTML = BOARD_OPTIONS.map((board,index)=>{
+        const selected = selectedBoardOption && selectedBoardOption.name === board.name;
         return `
           <button class="board-card${selected ? ' selected' : ''}" type="button" data-board-index="${index}">
             <span class="board-top">
               <span class="board-name">${board.name}</span>
-              <span class="board-price">${money(board.price)}</span>
+              <span class="board-price">${formatCurrency(board.price)}</span>
             </span>
             <span class="board-ingredients"><strong>Para ${board.people} pessoas</strong><br>${board.ingredients}</span>
           </button>
         `;
       }).join('');
 
-      boardQtyEl.textContent = String(boardQuantity);
+      boardQuantityDisplay.textContent = String(selectedBoardQuantity);
     }
 
-    function renderStep4(){
+    function renderGiftCustomization(){
       const kitBuilder = document.getElementById('kitBuilder');
       const boardBuilder = document.getElementById('boardBuilder');
       const title = document.getElementById('step4Title');
 
-      if(giftType === 'board'){
+      if(selectedGiftType === 'board'){
         title.textContent = 'Escolha sua tábua';
         kitBuilder.classList.remove('active');
         boardBuilder.classList.add('active');
-        renderBoards();
+        renderGiftBoards();
       } else {
         title.textContent = 'Monte seu kit';
         boardBuilder.classList.remove('active');
         kitBuilder.classList.add('active');
-        renderProducts();
+        renderGiftProducts();
       }
     }
 
-    function renderSummary(){
+    function renderGiftSummary(){
       const summary = document.getElementById('summary');
 
-      if(giftType === 'board'){
-        if(!selectedBoard){
+      if(selectedGiftType === 'board'){
+        if(!selectedBoardOption){
           summary.innerHTML = '<div class="mini">Nenhuma tábua selecionada.</div>';
           return;
         }
 
-        const subtotal = selectedBoard.price * boardQuantity;
+        const subtotal = selectedBoardOption.price * selectedBoardQuantity;
         summary.innerHTML = `
           <div class="summary-row">
-            <span>${selectedBoard.name} × ${boardQuantity}</span>
-            <strong>${money(subtotal)}</strong>
+            <span>${selectedBoardOption.name} × ${selectedBoardQuantity}</span>
+            <strong>${formatCurrency(subtotal)}</strong>
           </div>
-          <div class="summary-note"><strong>Serve:</strong> ${selectedBoard.people} pessoas</div>
-          <div class="summary-note"><strong>Ingredientes:</strong> ${selectedBoard.ingredients}</div>
+          <div class="summary-note"><strong>Serve:</strong> ${selectedBoardOption.people} pessoas</div>
+          <div class="summary-note"><strong>Ingredientes:</strong> ${selectedBoardOption.ingredients}</div>
           <div class="summary-row total">
             <span>Total</span>
-            <strong>${money(subtotal)}</strong>
+            <strong>${formatCurrency(subtotal)}</strong>
           </div>
         `;
         return;
       }
 
-      const itemRows = [...items.entries()].map(([name,price])=>
-        `<div class="summary-row"><span>${name}</span><strong>${money(price)}</strong></div>`
+      const itemRows = [...giftItems.entries()].map(([name,price])=>
+        `<div class="summary-row"><span>${name}</span><strong>${formatCurrency(price)}</strong></div>`
       ).join('');
 
       summary.innerHTML = `
         <div class="summary-row">
           <span>Montagem do kit</span>
-          <strong>${money(KIT_BASE_PRICE)}</strong>
+          <strong>${formatCurrency(KIT_BASE_PRICE)}</strong>
         </div>
         ${itemRows || '<div class="summary-note">Nenhuma preferência de produto selecionada. O Empório pode sugerir a composição pelo WhatsApp.</div>'}
         <div class="summary-row total">
           <span>Total</span>
-          <strong>${money(getTotal())}</strong>
+          <strong>${formatCurrency(calculateGiftTotal())}</strong>
         </div>
       `;
     }
 
-    function show(id){
-      clearErrors();
-      current = id;
+    function showSection(id){
+      clearValidationErrors();
+      currentSection = id;
       homeBtn.hidden = id === 'home';
       sections.forEach(section=>section.classList.toggle('active',section.id === id));
-      bottomBar.hidden = !order.includes(id);
+      bottomBar.hidden = !giftStepOrder.includes(id);
 
-      if(id === 'step4') renderStep4();
+      if(id === 'step4') renderGiftCustomization();
 
       if(id === 'step5'){
         nextBtn.textContent = 'Enviar pedido pelo WhatsApp';
-        renderSummary();
+        renderGiftSummary();
       } else {
         nextBtn.textContent = 'Continuar';
       }
@@ -1493,143 +1493,143 @@
       window.scrollTo({top:0,behavior:'smooth'});
     }
 
-    function validateCurrentStep(){
-      clearErrors(document.getElementById(current));
+    function validateGiftStep(){
+      clearValidationErrors(document.getElementById(currentSection));
 
-      if(current === 'step1' && !validDate(document.getElementById('date'))) return false;
+      if(currentSection === 'step1' && !validateDate(document.getElementById('date'))) return false;
 
-      if(current === 'step3' && !giftType){
-        return showGridError(document.getElementById('typeGrid'),'Escolha entre montar um kit ou pedir uma tábua de frios.');
+      if(currentSection === 'step3' && !selectedGiftType){
+        return showSelectionError(document.getElementById('typeGrid'),'Escolha entre montar um kit ou pedir uma tábua de frios.');
       }
 
-      if(current === 'step4' && giftType === 'board' && !selectedBoard){
-        return showGridError(document.getElementById('boardList'),'Escolha o tamanho da tábua para continuar.');
+      if(currentSection === 'step4' && selectedGiftType === 'board' && !selectedBoardOption){
+        return showSelectionError(document.getElementById('boardList'),'Escolha o tamanho da tábua para continuar.');
       }
 
       return true;
     }
 
     document.querySelectorAll('[data-go]').forEach(btn=>{
-      btn.addEventListener('click',()=>show(btn.dataset.go));
+      btn.addEventListener('click',()=>showSection(btn.dataset.go));
     });
 
-    homeBtn.addEventListener('click',()=>show('home'));
+    homeBtn.addEventListener('click',()=>showSection('home'));
 
     document.querySelectorAll('.occasion-choice').forEach(btn=>{
       btn.addEventListener('click',()=>{
         document.querySelectorAll('.occasion-choice').forEach(item=>item.classList.remove('selected'));
         btn.classList.add('selected');
-        occasionName = btn.dataset.occasion;
-        otherOccasionWrap.hidden = occasionName !== 'Outro';
-        if(occasionName !== 'Outro') otherOccasionInput.value = '';
+        selectedOccasion = btn.dataset.occasion;
+        otherOccasionContainer.hidden = selectedOccasion !== 'Outro';
+        if(selectedOccasion !== 'Outro') otherOccasionInput.value = '';
       });
     });
 
     document.getElementById('skipOccasionBtn').addEventListener('click',()=>{
-      occasionName = '';
+      selectedOccasion = '';
       otherOccasionInput.value = '';
-      otherOccasionWrap.hidden = true;
+      otherOccasionContainer.hidden = true;
       document.querySelectorAll('.occasion-choice').forEach(item=>item.classList.remove('selected'));
-      show('step3');
+      showSection('step3');
     });
 
     document.querySelectorAll('.type-card').forEach(btn=>{
       btn.addEventListener('click',()=>{
         document.querySelectorAll('.type-card').forEach(item=>item.classList.remove('selected'));
         btn.classList.add('selected');
-        giftType = btn.dataset.kind;
+        selectedGiftType = btn.dataset.kind;
 
-        if(giftType === 'kit'){
-          selectedBoard = null;
-          boardQuantity = 1;
+        if(selectedGiftType === 'kit'){
+          selectedBoardOption = null;
+          selectedBoardQuantity = 1;
         } else {
-          items.clear();
-          renderProducts();
+          giftItems.clear();
+          renderGiftProducts();
         }
       });
     });
 
-    productsList.addEventListener('click',event=>{
+    giftProductsContainer.addEventListener('click',event=>{
       const btn = event.target.closest('.add');
       if(!btn) return;
 
       const name = btn.dataset.name;
       const price = Number(btn.dataset.price);
 
-      if(items.has(name)){
-        items.delete(name);
+      if(giftItems.has(name)){
+        giftItems.delete(name);
         btn.classList.remove('added');
         btn.textContent = 'Adicionar';
       } else {
-        items.set(name,price);
+        giftItems.set(name,price);
         btn.classList.add('added');
         btn.textContent = 'Adicionado ✓';
       }
     });
 
-    boardList.addEventListener('click',event=>{
+    giftBoardContainer.addEventListener('click',event=>{
       const btn = event.target.closest('.board-card');
       if(!btn) return;
-      selectedBoard = BOARD_OPTIONS[Number(btn.dataset.boardIndex)];
-      renderBoards();
+      selectedBoardOption = BOARD_OPTIONS[Number(btn.dataset.boardIndex)];
+      renderGiftBoards();
     });
 
     document.getElementById('qtyMinus').addEventListener('click',()=>{
-      boardQuantity = Math.max(1,boardQuantity-1);
-      boardQtyEl.textContent = String(boardQuantity);
+      selectedBoardQuantity = Math.max(1,selectedBoardQuantity-1);
+      boardQuantityDisplay.textContent = String(selectedBoardQuantity);
     });
 
     document.getElementById('qtyPlus').addEventListener('click',()=>{
-      boardQuantity = Math.min(99,boardQuantity+1);
-      boardQtyEl.textContent = String(boardQuantity);
+      selectedBoardQuantity = Math.min(99,selectedBoardQuantity+1);
+      boardQuantityDisplay.textContent = String(selectedBoardQuantity);
     });
 
     noMessageBtn.addEventListener('click',()=>{
-      noMessage = !noMessage;
-      noMessageBtn.classList.toggle('active',noMessage);
-      noMessageBtn.setAttribute('aria-pressed',String(noMessage));
-      noMessageBtn.textContent = noMessage ? 'Sem mensagem no cartão ✓' : 'Sem mensagem no cartão';
-      messageEl.disabled = noMessage;
-      if(noMessage) messageEl.value = '';
+      isCardMessageDisabled = !isCardMessageDisabled;
+      noMessageBtn.classList.toggle('active',isCardMessageDisabled);
+      noMessageBtn.setAttribute('aria-pressed',String(isCardMessageDisabled));
+      noMessageBtn.textContent = isCardMessageDisabled ? 'Sem mensagem no cartão ✓' : 'Sem mensagem no cartão';
+      cardMessageInput.disabled = isCardMessageDisabled;
+      if(isCardMessageDisabled) cardMessageInput.value = '';
     });
 
     nextBtn.addEventListener('click',()=>{
-      if(!validateCurrentStep()) return;
+      if(!validateGiftStep()) return;
 
-      if(current === 'step1') return show('step2');
-      if(current === 'step2') return show('step3');
-      if(current === 'step3') return show('step4');
-      if(current === 'step4') return show('step5');
+      if(currentSection === 'step1') return showSection('step2');
+      if(currentSection === 'step2') return showSection('step3');
+      if(currentSection === 'step3') return showSection('step4');
+      if(currentSection === 'step4') return showSection('step5');
 
-      if(current === 'step5'){
+      if(currentSection === 'step5'){
         const date = document.getElementById('date').value || 'Não informada';
         const time = document.getElementById('time').value || 'Não informado';
         const delivery = document.getElementById('delivery').value;
-        const occasion = getOccasion();
-        const message = getMessage();
+        const occasion = getSelectedOccasion();
+        const message = getCardMessage();
 
         let orderDetails = '';
 
-        if(giftType === 'board'){
-          const subtotal = selectedBoard.price * boardQuantity;
-          orderDetails = `Tipo: Tábua de frios\nTamanho: ${selectedBoard.name}\nServe: ${selectedBoard.people} pessoas por tábua\nQuantidade: ${boardQuantity}\nIngredientes: ${selectedBoard.ingredients}\nSubtotal: ${money(subtotal)}`;
+        if(selectedGiftType === 'board'){
+          const subtotal = selectedBoardOption.price * selectedBoardQuantity;
+          orderDetails = `Tipo: Tábua de frios\nTamanho: ${selectedBoardOption.name}\nServe: ${selectedBoardOption.people} pessoas por tábua\nQuantidade: ${selectedBoardQuantity}\nIngredientes: ${selectedBoardOption.ingredients}\nSubtotal: ${formatCurrency(subtotal)}`;
         } else {
-          const itemList = [...items.keys()].length ? [...items.keys()].join(', ') : 'Sem preferências específicas';
-          orderDetails = `Tipo: Kit presente\nPreferências para o kit: ${itemList}\nReferência de montagem: ${money(KIT_BASE_PRICE)} de base + itens selecionados\nObservação: o Empório pode sugerir a melhor composição e confirmar os detalhes pelo WhatsApp.`;
+          const itemList = [...giftItems.keys()].length ? [...giftItems.keys()].join(', ') : 'Sem preferências específicas';
+          orderDetails = `Tipo: Kit presente\nPreferências para o kit: ${itemList}\nReferência de montagem: ${formatCurrency(KIT_BASE_PRICE)} de base + itens selecionados\nObservação: o Empório pode sugerir a melhor composição e confirmar os detalhes pelo WhatsApp.`;
         }
 
-        const text = `Olá! Montei um pedido pelo site do Empório São Marcos.\n\nData: ${date}\nHorário: ${time}\nOcasião: ${occasion}\n${orderDetails}\nMensagem do cartão: ${message}\nRecebimento: ${delivery}\nTotal estimado: ${money(getTotal())}`;
+        const text = `Olá! Montei um pedido pelo site do Empório São Marcos.\n\nData: ${date}\nHorário: ${time}\nOcasião: ${occasion}\n${orderDetails}\nMensagem do cartão: ${message}\nRecebimento: ${delivery}\nTotal estimado: ${formatCurrency(calculateGiftTotal())}`;
 
-        openWhatsApp(text);
+        openWhatsAppMessage(text);
       }
     });
 
     backBtn.addEventListener('click',()=>{
-      if(current === 'step1') return show('home');
-      if(current === 'step2') return show('step1');
-      if(current === 'step3') return show('step2');
-      if(current === 'step4') return show('step3');
-      if(current === 'step5') return show('step4');
+      if(currentSection === 'step1') return showSection('home');
+      if(currentSection === 'step2') return showSection('step1');
+      if(currentSection === 'step3') return showSection('step2');
+      if(currentSection === 'step4') return showSection('step3');
+      if(currentSection === 'step5') return showSection('step4');
     });
 
     document.querySelectorAll('.visit-check').forEach(check=>{
@@ -1640,7 +1640,7 @@
 
     const WHATSAPP_NUMBER = '5554996329095';
 
-    function openWhatsApp(text){
+    function openWhatsAppMessage(text){
       const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
       window.location.assign(url);
     }
@@ -1648,7 +1648,7 @@
     const contactWhatsApp = document.getElementById('contactWhatsApp');
     if(contactWhatsApp){
       contactWhatsApp.addEventListener('click',()=>{
-        openWhatsApp('Olá! Vim pelo site do Empório São Marcos e gostaria de falar com vocês.');
+        openWhatsAppMessage('Olá! Vim pelo site do Empório São Marcos e gostaria de falar com vocês.');
       });
     }
 
@@ -1656,15 +1656,15 @@
     if(quoteWhatsApp){
       quoteWhatsApp.addEventListener('click',()=>{
         const section = document.getElementById('quote');
-        clearErrors(section);
+        clearValidationErrors(section);
 
         const qtyEl = document.getElementById('quoteQty');
         const dateEl = document.getElementById('quoteDate');
         const contactEl = document.getElementById('quoteContact');
 
-        if(!validDate(dateEl)) return;
-        if(!Number.isInteger(Number(qtyEl.value)) || Number(qtyEl.value) < 1) return showError(qtyEl,'Informe uma quantidade válida.');
-        if(!contactEl.value.trim()) return showError(contactEl,'Informe um nome e telefone para contato.');
+        if(!validateDate(dateEl)) return;
+        if(!Number.isInteger(Number(qtyEl.value)) || Number(qtyEl.value) < 1) return showFieldError(qtyEl,'Informe uma quantidade válida.');
+        if(!contactEl.value.trim()) return showFieldError(contactEl,'Informe um nome e telefone para contato.');
 
         const qty = qtyEl.value;
         const range = document.getElementById('quoteRange').value;
@@ -1673,7 +1673,7 @@
         const details = document.getElementById('quoteDetails').value.trim() || 'Sem observações';
 
         const text = `Olá! Gostaria de solicitar uma cotação no Empório São Marcos.\n\nQuantidade aproximada: ${qty}\nFaixa por presente: ${range}\nData: ${date}\nContato: ${contact}\nDetalhes: ${details}`;
-        openWhatsApp(text);
+        openWhatsAppMessage(text);
       });
     }
 
@@ -1681,7 +1681,7 @@
     if(visitWhatsApp){
       visitWhatsApp.addEventListener('click',()=>{
         const section = document.getElementById('visit');
-        clearErrors(section);
+        clearValidationErrors(section);
 
         const selected = [...document.querySelectorAll('.visit-check:checked')].map(el=>el.value);
         const dateEl = document.getElementById('visitDate');
@@ -1689,12 +1689,12 @@
         const contactEl = document.getElementById('visitContact');
 
         if(!selected.length){
-          return showGridError(document.querySelector('.visit-multi'),'Escolha pelo menos uma opção para a visita.');
+          return showSelectionError(document.querySelector('.visit-multi'),'Escolha pelo menos uma opção para a visita.');
         }
 
-        if(!validDate(dateEl)) return;
-        if(!Number.isInteger(Number(peopleEl.value)) || Number(peopleEl.value) < 1) return showError(peopleEl,'Informe quantas pessoas participarão.');
-        if(!contactEl.value.trim()) return showError(contactEl,'Informe um nome e telefone para contato.');
+        if(!validateDate(dateEl)) return;
+        if(!Number.isInteger(Number(peopleEl.value)) || Number(peopleEl.value) < 1) return showFieldError(peopleEl,'Informe quantas pessoas participarão.');
+        if(!contactEl.value.trim()) return showFieldError(contactEl,'Informe um nome e telefone para contato.');
 
         const date = dateEl.value || 'Não informada';
         const time = document.getElementById('visitTime').value;
@@ -1703,7 +1703,7 @@
         const notes = document.getElementById('visitNotes').value.trim() || 'Sem observações';
 
         const text = `Olá! Gostaria de agendar uma visita ao Empório São Marcos.\n\nInteresses: ${selected.join(', ')}\nData desejada: ${date}\nHorário aproximado: ${time}\nPessoas: ${people}\nContato: ${contact}\nObservações: ${notes}`;
-        openWhatsApp(text);
+        openWhatsAppMessage(text);
       });
     }
 
@@ -1736,84 +1736,84 @@
     }
 
 
-    function validDate(el){
-      if(el.value && el.value < todayISO()) return showError(el,'Escolha uma data a partir de hoje.');
+    function validateDate(el){
+      if(el.value && el.value < getTodayISO()) return showFieldError(el,'Escolha uma data a partir de hoje.');
       return true;
     }
-    const shopCatalog = [...PRODUCTS, ...BOARD_OPTIONS.map(p=>({...p, category:'Tábuas de frios'}))];
-    const shopBag = new Map();
-    let shopCategory = 'Todos';
-    const categories = ['Todos', ...new Set(shopCatalog.map(p=>p.category))];
-    const escapeHTML = value => String(value).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    const normalizeSearch = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-    function renderShop(){
-      document.getElementById('shopFilters').innerHTML = categories.map((c,i)=>`<button class="shop-filter" type="button" data-category="${i}" aria-pressed="${c===shopCategory}">${escapeHTML(c)}</button>`).join('');
-      const query = normalizeSearch(document.getElementById('shopSearch').value.trim());
-      const matches = shopCatalog.map((p,id)=>({...p,id})).filter(p=>(shopCategory==='Todos'||p.category===shopCategory)&&normalizeSearch(p.name+' '+p.category).includes(query));
+    const storeCatalog = [...PRODUCTS, ...BOARD_OPTIONS.map(p=>({...p, category:'Tábuas de frios'}))];
+    const shoppingBag = new Map();
+    let selectedStoreCategory = 'Todos';
+    const storeCategories = ['Todos', ...new Set(storeCatalog.map(p=>p.category))];
+    const escapeHtml = value => String(value).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const normalizeSearchText = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    function renderStoreCatalog(){
+      document.getElementById('shopFilters').innerHTML = storeCategories.map((c,i)=>`<button class="shop-filter" type="button" data-category="${i}" aria-pressed="${c===selectedStoreCategory}">${escapeHtml(c)}</button>`).join('');
+      const query = normalizeSearchText(document.getElementById('shopSearch').value.trim());
+      const matches = storeCatalog.map((p,id)=>({...p,id})).filter(p=>(selectedStoreCategory==='Todos'||p.category===selectedStoreCategory)&&normalizeSearchText(p.name+' '+p.category).includes(query));
       document.getElementById('shopCount').textContent = `${matches.length} produtos encontrados`;
-      document.getElementById('shopProducts').innerHTML = matches.length ? matches.map(p=>`<article class="shop-card"><small>${escapeHTML(p.category)}</small><h3>${escapeHTML(p.name)}</h3><strong>${money(p.price)}</strong><div class="shop-card-action"><button class="add" type="button" data-shop-add="${p.id}" aria-label="Adicionar ${escapeHTML(p.name)} à sacola">Adicionar +</button><span class="shop-add-count">${shopBag.has(p.id) ? `${shopBag.get(p.id)} na sacola` : ''}</span></div></article>`).join('') : '<p class="shop-status">Nenhum produto encontrado. Experimente outro nome ou categoria.</p>';
+      document.getElementById('shopProducts').innerHTML = matches.length ? matches.map(p=>`<article class="shop-card"><small>${escapeHtml(p.category)}</small><h3>${escapeHtml(p.name)}</h3><strong>${formatCurrency(p.price)}</strong><div class="shop-card-action"><button class="add" type="button" data-shop-add="${p.id}" aria-label="Adicionar ${escapeHtml(p.name)} à sacola">Adicionar +</button><span class="shop-add-count">${shoppingBag.has(p.id) ? `${shoppingBag.get(p.id)} na sacola` : ''}</span></div></article>`).join('') : '<p class="shop-status">Nenhum produto encontrado. Experimente outro nome ou categoria.</p>';
     }
-    function renderBag(){
+    function renderShoppingBag(){
       let total=0, count=0;
-      document.getElementById('cartItems').innerHTML = [...shopBag].map(([id,qty])=>{
-        const p=shopCatalog[id]; total+=Math.round(p.price*100)*qty; count+=qty;
-        return `<div class="cart-row"><span>${escapeHTML(p.name)}<br><strong>${money(p.price*qty)}</strong></span><div class="cart-controls"><button type="button" data-bag-id="${id}" data-delta="-1" aria-label="Remover uma unidade de ${escapeHTML(p.name)}">−</button><span>${qty}</span><button type="button" data-bag-id="${id}" data-delta="1" aria-label="Adicionar uma unidade de ${escapeHTML(p.name)}" ${qty>=99?'disabled':''}>+</button></div></div>`;
+      document.getElementById('cartItems').innerHTML = [...shoppingBag].map(([id,qty])=>{
+        const p=storeCatalog[id]; total+=Math.round(p.price*100)*qty; count+=qty;
+        return `<div class="cart-row"><span>${escapeHtml(p.name)}<br><strong>${formatCurrency(p.price*qty)}</strong></span><div class="cart-controls"><button type="button" data-bag-id="${id}" data-delta="-1" aria-label="Remover uma unidade de ${escapeHtml(p.name)}">−</button><span>${qty}</span><button type="button" data-bag-id="${id}" data-delta="1" aria-label="Adicionar uma unidade de ${escapeHtml(p.name)}" ${qty>=99?'disabled':''}>+</button></div></div>`;
       }).join('') || '<p class="shop-status">Sua sacola está vazia. Adicione seus favoritos acima.</p>';
-      document.getElementById('cartTotal').textContent=money(total/100);
+      document.getElementById('cartTotal').textContent=formatCurrency(total/100);
       document.getElementById('shopCheckout').disabled=!count;
       document.getElementById('shopBagCount').textContent=count ? `${count} ${count===1?'item':'itens'} na sacola` : 'Sacola vazia';
-      document.getElementById('shopBagTotal').textContent=money(total/100);
+      document.getElementById('shopBagTotal').textContent=formatCurrency(total/100);
       document.querySelectorAll('[data-shop-add]').forEach(button=>{
-        const qty=shopBag.get(Number(button.dataset.shopAdd))||0;
+        const qty=shoppingBag.get(Number(button.dataset.shopAdd))||0;
         button.parentElement.querySelector('.shop-add-count').textContent=qty ? `${qty} na sacola` : '';
         button.disabled=qty>=99;
       });
       document.getElementById('cartStatus').textContent=count ? `${count} ${count===1?'item':'itens'} na sacola.` : 'Nenhum item na sacola.';
     }
-    let shopFeedbackTimer;
-    function notifyShop(message){
-      clearTimeout(shopFeedbackTimer);
+    let storeFeedbackTimer;
+    function showStoreFeedback(message){
+      clearTimeout(storeFeedbackTimer);
       document.getElementById('shopFeedback').textContent=message;
-      shopFeedbackTimer=setTimeout(()=>{document.getElementById('shopFeedback').textContent='';},2600);
+      storeFeedbackTimer=setTimeout(()=>{document.getElementById('shopFeedback').textContent='';},2600);
     }
     document.getElementById('shopViewBag').addEventListener('click',()=>{
       const heading=document.getElementById('shopCartTitle');
       heading.focus({preventScroll:true});
       heading.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
     });
-    document.getElementById('shopSearch').addEventListener('input',renderShop);
+    document.getElementById('shopSearch').addEventListener('input',renderStoreCatalog);
     document.getElementById('shopFilters').addEventListener('click',e=>{
       const b=e.target.closest('[data-category]'); if(!b)return;
-      shopCategory=categories[Number(b.dataset.category)]; renderShop();
+      selectedStoreCategory=storeCategories[Number(b.dataset.category)]; renderStoreCatalog();
       document.querySelector(`[data-category="${b.dataset.category}"]`).focus();
     });
     document.getElementById('shopProducts').addEventListener('click',e=>{
       const b=e.target.closest('[data-shop-add]'); if(!b)return;
       const id=Number(b.dataset.shopAdd);
-      if((shopBag.get(id)||0)>=99)return;
-      shopBag.set(id,(shopBag.get(id)||0)+1);
-      renderBag();
-      notifyShop(`${shopCatalog[id].name} adicionado à sacola.`);
+      if((shoppingBag.get(id)||0)>=99)return;
+      shoppingBag.set(id,(shoppingBag.get(id)||0)+1);
+      renderShoppingBag();
+      showStoreFeedback(`${storeCatalog[id].name} adicionado à sacola.`);
     });
     document.getElementById('cartItems').addEventListener('click',e=>{
       const b=e.target.closest('[data-bag-id]'); if(!b)return;
-      const id=Number(b.dataset.bagId), qty=(shopBag.get(id)||0)+Number(b.dataset.delta);
-      if(qty<=0)shopBag.delete(id); else shopBag.set(id,Math.min(99,qty));
-      renderBag();
+      const id=Number(b.dataset.bagId), qty=(shoppingBag.get(id)||0)+Number(b.dataset.delta);
+      if(qty<=0)shoppingBag.delete(id); else shoppingBag.set(id,Math.min(99,qty));
+      renderShoppingBag();
       const next=document.querySelector(`[data-bag-id="${id}"][data-delta="${b.dataset.delta}"]`);
       (next||document.getElementById('shopSearch')).focus();
     });
     document.getElementById('shopCheckout').addEventListener('click',()=>{
-      if(!shopBag.size)return;
+      if(!shoppingBag.size)return;
       let cents=0;
-      const lines=[...shopBag].map(([id,qty])=>{const p=shopCatalog[id]; cents+=Math.round(p.price*100)*qty;return `${qty} × ${p.name}: ${money(p.price*qty)}`;});
-      openWhatsApp(`Olá! Gostaria de solicitar um pedido na loja do Empório São Marcos.\n\n${lines.join('\n')}\n\nTotal estimado: ${money(cents/100)}\nRecebimento: ${document.getElementById('shopDelivery').value}\nObservações: ${document.getElementById('shopNotes').value.trim()||'Sem observações'}\n\nPodem confirmar disponibilidade, variações, frete e pagamento?`);
+      const lines=[...shoppingBag].map(([id,qty])=>{const p=storeCatalog[id]; cents+=Math.round(p.price*100)*qty;return `${qty} × ${p.name}: ${formatCurrency(p.price*qty)}`;});
+      openWhatsAppMessage(`Olá! Gostaria de solicitar um pedido na loja do Empório São Marcos.\n\n${lines.join('\n')}\n\nTotal estimado: ${formatCurrency(cents/100)}\nRecebimento: ${document.getElementById('shopDelivery').value}\nObservações: ${document.getElementById('shopNotes').value.trim()||'Sem observações'}\n\nPodem confirmar disponibilidade, variações, frete e pagamento?`);
     });
-    renderShop();
-    renderBag();
+    renderStoreCatalog();
+    renderShoppingBag();
 
-    renderProducts();
-    renderBoards();
+    renderGiftProducts();
+    renderGiftBoards();
   </script>
 </body>
 </html>
